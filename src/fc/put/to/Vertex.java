@@ -1,3 +1,5 @@
+package fc.put.to;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,8 +8,8 @@ import java.util.List;
  */
 public class Vertex {
 
-    Integer id;
-    List<Cost> costList;
+    private Integer id;
+    private List<Cost> costList;
 
 
     public Vertex(Integer id){
@@ -36,10 +38,10 @@ public class Vertex {
         this.costList.add(c);
     }
 
-    public class Cost {
+    public class Cost implements Comparable<Cost> {
 
-        Integer target;
-        Integer value;
+        private Integer target;
+        private Integer value;
 
         public Cost(int target, int value){
             this.target = target;
@@ -52,6 +54,11 @@ public class Vertex {
 
         public Integer getValue() {
             return value;
+        }
+
+        @Override
+        public int compareTo(Cost o) {
+            return this.value - o.getValue();
         }
     }
 }
