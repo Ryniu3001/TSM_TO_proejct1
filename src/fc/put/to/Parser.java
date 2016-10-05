@@ -38,9 +38,8 @@ public class Parser {
         Node graph = nList.item(0);
         NodeList vertexList = graph.getChildNodes();
         List<Vertex> vertexes = new ArrayList<>();
-
+        int id = 0;
         for (int j = 0; j < vertexList.getLength(); j++) {
-            int id = 0;
             Node vertex = vertexList.item(j);
             if (vertex.getNodeType() == Node.ELEMENT_NODE) {
                 vertexes.add(parseVertex(vertex, id++));

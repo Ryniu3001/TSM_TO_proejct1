@@ -10,11 +10,13 @@ public class Vertex {
 
     private Integer id;
     private List<Cost> costList;
+    private Boolean visited;
 
 
     public Vertex(Integer id){
         this.id = id;
         costList = new ArrayList<>();
+        visited = false;
     }
 
     public Integer getId() {
@@ -31,6 +33,14 @@ public class Vertex {
 
     public void setCostList(List<Cost> costList) {
         this.costList = costList;
+    }
+
+    public Boolean getVisited() {
+        return visited;
+    }
+
+    public void setVisited(Boolean visited) {
+        this.visited = visited;
     }
 
     public void addDistance(Integer to, Integer cost){
