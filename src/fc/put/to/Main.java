@@ -1,16 +1,14 @@
 package fc.put.to;
 
-import fc.put.to.algorithms.greedy.Draw;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-/*        List<Vertex> vertexList = Parser.readFile();
-        GreedyCycle gc = new GreedyCycle(vertexList);
+        List<Vertex> vertexList = Parser.readFile();
+/*        GreedyCycle gc = new GreedyCycle(vertexList);
         gc.run();*/
 
-        Draw d = new Draw();
-        d.draw();
 
 /*        long start = System.nanoTime();
         vertexList.stream().forEach(value -> new GreedyCycle(vertexList, value));
