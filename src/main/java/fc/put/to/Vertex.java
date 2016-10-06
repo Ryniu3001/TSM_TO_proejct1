@@ -2,6 +2,7 @@ package fc.put.to;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by marcin on 04.10.16.
@@ -46,6 +47,14 @@ public class Vertex {
     public void addDistance(Integer to, Integer cost){
         Cost c = new Cost(to, cost);
         this.costList.add(c);
+    }
+
+    public Cost getCostToVertex(Vertex target){
+        Optional<Cost> cost = this.getCostList().stream().filter(c -> c.getTarget() == target.getId()).findFirst();
+        if (cost.isPresent())
+            return cost.get();
+        else
+            throw new NullPointerException("Brak docelowego wierzcholka.");
     }
 
     public class Cost implements Comparable<Cost> {
