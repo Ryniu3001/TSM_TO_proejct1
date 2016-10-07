@@ -38,7 +38,10 @@ public class GreedyCycle {
         cost = 0;
     }
     public void run(){
+        //long start = System.nanoTime();
         vertices.stream().forEach(this::findHamiltonianPath);
+        //long end = System.nanoTime();
+        //System.out.println("Time taken(ms): " + (end - start) / 1.0e6);
         System.out.println("DONE ");
         printResult();
     }
@@ -58,18 +61,18 @@ public class GreedyCycle {
      * Następna iteracja przyłączenia nowego wierzchołka do grafu
      */
     private void nextStep(int i){
-        Optional<BestConnection> bestConnection = vertices.stream()
-                .filter(isVvisited())
-                .map(this::getBestConnection)
-                .min((o1, o2) -> o1.cost.getValue() - o2.cost.getValue());
 
-        if (/*incidenceList.stream().allMatch(v -> v.size() == 0)*/ i==0)                             //pierwszy przebieg (wszystkie wierzcholki o stopniu 0)
-            makeEdge(bestConnection.get().from, vertices.get(bestConnection.get().cost.getTarget()));
-        else if (/*incidenceList.stream().filter(v -> v.size() == 1).count() == 2*/ i==1){                       //2 wierzcholki o stopniu 1
-            Vertex vertexToMakeCycle = incidenceList.get(bestConnection.get().from.getId()).get(0);
-            makeEdge(bestConnection.get().from, vertices.get(bestConnection.get().cost.getTarget()));
-            makeEdge(vertexToMakeCycle, vertices.get(bestConnection.get().cost.getTarget()));           //cykl z 3 wierzcholkow
-        }else{
+        if (i==0) {                             //pierwszy przebieg (wszystkie wierzcholki o stopniu 0)
+            Vertex from = vertices.stream().filter(v -> v.getVisited()).findFirst().get();
+            Vertex nn =findNearestNeighbour(from);
+            makeEdge(from, nn);
+            makeEdge(nn, from);
+        }
+        else{
+            Optional<BestConnection> bestConnection = vertices.stream()
+                    .filter(isVvisited())
+                    .map(this::getBestConnection)
+                    .min((o1, o2) -> o1.cost - o2.cost);
             addNewVertexToCycle(bestConnection.get());
         }
     }
@@ -83,14 +86,12 @@ public class GreedyCycle {
      * @param bc
      */
     private void addNewVertexToCycle(BestConnection bc) {
-        Vertex newVertex = vertices.get(bc.cost.getTarget());
+        Vertex newVertex = bc.to;
         List<Vertex> list = incidenceList.get(bc.from.getId());
         if (list.size() != 2) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
-        Optional<Vertex> best = list.stream().min((o1, o2) -> o1.getCostToVertex(newVertex).getValue()
-                                                            - o2.getCostToVertex(newVertex).getValue());
         makeEdge(bc.from, newVertex);
-        removeEdge(bc.from, best.get());
-        makeEdge(best.get(), newVertex);
+        removeEdge(bc.from, bc.removedConnectionVertex);
+        makeEdge(bc.removedConnectionVertex, newVertex);
     }
 
     private void removeEdge(Vertex v1, Vertex v2){
@@ -108,31 +109,52 @@ public class GreedyCycle {
         cost += v1.getCostToVertex(v2).getValue();
     }
 
+    /**
+     * Znajduje nalepsze polaczenie z wiercholka vertex do nastepnego, biorac pod uwage (minimalizując)sumaryczny koszt usunięcia
+     * jednej krawędzi oraz dodania dwóch nowych krawędzi do nowego wierzchołka.
+     * @param vertex
+     * @return
+     */
     private BestConnection getBestConnection(Vertex vertex){
         BestConnection bc = new BestConnection();
         bc.from = vertex;
+        Vertex removedEdgeVertex = incidenceList.get(vertex.getId()).get(0);        //zawsze bierzemy ten z 0 indeksu do usunięcia krawędzi
+        int cost = 0 - removedEdgeVertex.getCostToVertex(vertex).getValue();        //zmniejszamy koszt o koszt usuniętej krawędzi
         Optional<Vertex.Cost> bestCost = vertex.getCostList()
                 .stream()
                 .filter(isUnvisited())
-                .findFirst();
-        bc.cost = bestCost.get();
+                .min((o1, o2) -> getCostOfAddingTwoEdges(vertex, removedEdgeVertex, vertices.get(o1.getTarget()))
+                                    - getCostOfAddingTwoEdges(vertex, removedEdgeVertex, vertices.get(o2.getTarget())));
+        cost += bestCost.get().getValue();
+        cost += removedEdgeVertex.getCostToVertex(vertices.get(bestCost.get().getTarget())).getValue();
+        bc.to = vertices.get(bestCost.get().getTarget());
+        bc.removedConnectionVertex = removedEdgeVertex;
+        bc.cost = cost;
         return bc;
     }
 
+    /**
+     * Zwraca koszt dodania dwóch krawędzi from1 - to oraz from2 - to
+     */
+    private int getCostOfAddingTwoEdges(Vertex from1, Vertex from2, Vertex to){
+        int cost = 0;
+        cost += from1.getCostToVertex(to).getValue() + from2.getCostToVertex(to).getValue();
+        return cost;
+    }
+
+    private Vertex findNearestNeighbour(Vertex v){
+        int nearest = v.getCostList().stream()
+                                        .min((o1, o2) -> o1.getValue() - o2.getValue())
+                                        .get()
+                                        .getTarget();
+        return vertices.get(nearest);
+    }
 
     private Predicate<Vertex.Cost> isUnvisited() {
         return v -> !vertices.get(v.getTarget()).getVisited();
     }
     private Predicate<Vertex> isVvisited() {
         return v -> v.getVisited();
-    }
-
-    public Integer getBestCost() {
-        return bestCost;
-    }
-
-    public List<List<Vertex>> getBestIncidenceList() {
-        return bestIncidenceList;
     }
 
     private void printResult(){
@@ -166,9 +188,18 @@ public class GreedyCycle {
         System.out.println(from);
         System.out.println(cost);
     }
+    public Integer getBestCost() {
+        return bestCost;
+    }
+
+    public List<List<Vertex>> getBestIncidenceList() {
+        return bestIncidenceList;
+    }
 
     public class BestConnection{
+        Vertex removedConnectionVertex;  //wierzcholek ktoremu usunieto krawedz z wierzcholkiem from
         Vertex from;
-        Vertex.Cost cost;
+        Vertex to;
+        Integer cost;
     }
 }
