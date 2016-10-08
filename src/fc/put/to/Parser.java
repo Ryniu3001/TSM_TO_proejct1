@@ -21,7 +21,7 @@ public class Parser {
      * Returns a list of vertices, each witch sorted list of costs
      */
     public static List<Vertex> readFile() {
-        File fXmlFile = new File("/home/marcin/Pobrane/kroA100.xml");
+        File fXmlFile = new File(Constants.FILE_PATH_XML);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder;
         Document doc = null;
