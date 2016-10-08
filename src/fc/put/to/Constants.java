@@ -7,4 +7,6 @@ public class Constants {
 
     public static final String FILE_PATH_XML = "kroA100.xml";
     public static final String FILE_PATH_TSP = "kroA100.tsp";
+
+    public static final int LENGHT_OF_SOLUTION = 50;
 }
