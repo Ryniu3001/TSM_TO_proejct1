@@ -17,7 +17,7 @@ public class GreedyCycle {
      * liste kosztów dotarcia do pozostałych wierzchołków.
      */
     protected final List<Vertex> vertices;
-    private List<List<Vertex>> incidenceList;
+    protected List<List<Vertex>> incidenceList;
     private Integer cost;
 
     //Pola wynikowe
@@ -110,7 +110,7 @@ public class GreedyCycle {
         cost += v1.getCostToVertex(v2).getValue();
     }
 
-    private Connection getBestConnection(){
+    protected Connection getBestConnection(){
         List<Connection> possibleConn = new ArrayList<>();
         Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 2).findFirst().get().get(0);
         Vertex startingPoint = from1;
@@ -148,7 +148,7 @@ public class GreedyCycle {
     /**
      * Zwraca koszt dodania dwóch krawędzi from1 - to oraz from2 - to
      */
-    private Connection getCostOfAddingTwoEdges(Vertex from1, Vertex from2, Vertex to){
+    protected Connection getCostOfAddingTwoEdges(Vertex from1, Vertex from2, Vertex to){
         Connection conn = new Connection();
         conn.from1 = from1;
         conn.from2 = from2;
