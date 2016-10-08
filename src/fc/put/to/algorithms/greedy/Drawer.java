@@ -1,5 +1,6 @@
 package fc.put.to.algorithms.greedy;
 
+import fc.put.to.Constants;
 import fc.put.to.Vertex;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -65,7 +66,7 @@ public class Drawer {
     }
 
     private void readFileWithCoordinates(){
-        File file = new File("/home/marcin/Pobrane/kroA100.tsp");
+        File file = new File(Constants.FILE_PATH_TSP);
         try (Stream<String> stream = Files.lines(file.toPath())) {
 
             stream.forEach(s -> this.vertices.add(new VertexWithCoord(s)));
