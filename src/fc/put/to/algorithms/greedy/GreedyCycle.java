@@ -16,7 +16,7 @@ public class GreedyCycle {
      * Lista wierzcholkow, dla kazdego wierzcholka zaweira posortowaną
      * liste kosztów dotarcia do pozostałych wierzchołków.
      */
-    private final List<Vertex> vertices;
+    protected final List<Vertex> vertices;
     private List<List<Vertex>> incidenceList;
     private Integer cost;
 
@@ -165,11 +165,8 @@ public class GreedyCycle {
         return conn;
     }
 
-    private Vertex findNearestNeighbour(Vertex v){
-        int nearest = v.getCostList().stream()
-                                        .min((o1, o2) -> o1.getValue() - o2.getValue())
-                                        .get()
-                                        .getTarget();
+    protected Vertex findNearestNeighbour(Vertex v){
+        int nearest = v.getCostList().get(0).getTarget(); //metoda wywolywana gdy w grafie jest 1 wierzcholek wiec nie trzeba sprawdzac czy cel juz byl odwiedzony
         return vertices.get(nearest);
     }
 
