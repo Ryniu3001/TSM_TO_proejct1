@@ -23,7 +23,7 @@ public class Drawer {
     private Graph graph;
     private Integer edId = 0;
 
-    public Drawer(List<List<Vertex>> incidenceList){
+    public Drawer(){
         vertices = new ArrayList<>();
     }
 

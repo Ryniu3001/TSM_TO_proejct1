@@ -12,7 +12,7 @@ public class Main {
         GreedyCycle gc = new GreedyCycle(vertexList);
         gc.run();
 
-        Drawer drawer = new Drawer(gc.getBestIncidenceList());
-        drawer.draw();
+        Drawer drawer = new Drawer();
+        drawer.draw(gc.getBestIncidenceList());
     }
 }
