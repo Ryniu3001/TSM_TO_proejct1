@@ -19,20 +19,19 @@ import java.util.stream.Stream;
  */
 public class Drawer {
     private List<VertexWithCoord> vertices;
-    private  List<List<Vertex>> incidenceList;
+
     private Graph graph;
     private Integer edId = 0;
 
     public Drawer(List<List<Vertex>> incidenceList){
         vertices = new ArrayList<>();
-        this.incidenceList = incidenceList;
     }
 
-    public void draw(){
+    public void draw(List<List<Vertex>> incidenceList){
         readFileWithCoordinates();
         this.graph = new MultiGraph("Hello World!");
         this.vertices.forEach(this::drawNewVertex);
-        Vertex from = this.incidenceList.stream().filter(vertices1 -> vertices1.size() == 2).findFirst().get().get(0);
+        Vertex from = incidenceList.stream().filter(vertices1 -> vertices1.size() == 2).findFirst().get().get(0);
         Vertex previous = from;
 
         for (int i=0; i<50; i++) {
@@ -61,9 +60,7 @@ public class Drawer {
     }
 
     private void drawEdges(Vertex from, Vertex to){
-
         Edge e = graph.addEdge(edId.toString(), from.getId(), to.getId());
-
         edId++;
     }
 
