@@ -73,12 +73,6 @@ public class GreedyCycle {
             makeEdge(nn, from);
         }
         else{
-/*            Optional<Connection> bestConnection = vertices.stream()
-                    .filter(isVvisited())
-                    .map(this::getBestConnection)
-                    .min((o1, o2) -> o1.cost - o2.cost);*/
-
-           // System.out.println("Add: " + bestConnection.get().from1.getId() + " - " + bestConnection.get().to.getId() + " R: " + bestConnection.get().from2.getId());
             Connection bestConnection = getBestConnection();
             addNewVertexToCycle(bestConnection);
         }
@@ -117,7 +111,7 @@ public class GreedyCycle {
     }
 
     private Connection getBestConnection(){
-        Connection tmpConnection;
+        List<Connection> possibleConn = new ArrayList<>();
         Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 2).findFirst().get().get(0);
         Vertex startingPoint = from1;
         Vertex from2 = this.incidenceList.get(from1.getId()).get(0);
@@ -125,40 +119,39 @@ public class GreedyCycle {
         do{
             Vertex finalFrom = from1;
             Vertex finalFrom1 = from2;
-            tmpConnection = vertices.stream()
+            possibleConn.add(vertices.stream()
                     .filter(v -> !v.getVisited())
                     .map(v -> getCostOfAddingTwoEdges(finalFrom, finalFrom1, v))
-                    .min((o1, o2) -> o1.cost - o2.cost).get();
-            if (best.cost == null || best.cost >= tmpConnection.cost){
-                best.from1 = from1;
-                best.to = tmpConnection.to;
-                best.from2 = from2;
-                best.cost = tmpConnection.cost;
-            }
+                    .min((o1, o2) -> o1.cost - o2.cost).get());
 
             Vertex previous = from1;
             from1 = from2;
             Optional<Vertex> next = this.incidenceList.get(from1.getId()).stream()
-                                                                        .filter(v -> v.getId() != previous.getId())
-                                                                        .findFirst();
+                    .filter(v -> v.getId() != previous.getId())
+                    .findFirst();
+
             if (next.isPresent())
                 from2 = next.get();
             else
                 break;
 
         }while(from1.getId() != startingPoint.getId());
-
-
-
-
+        best = chooseBestConnectionFromList(possibleConn);
         return best;
     }
 
+    protected Connection chooseBestConnectionFromList(List<Connection> list){
+        return list.stream().min((o1, o2) -> {
+            return o1.cost - o2.cost == 0 ? 1 : o1.cost - o2.cost;      //w przypadku rownych traktuj drugi jako mniejszy
+        }).get();
+    }
     /**
      * Zwraca koszt dodania dwóch krawędzi from1 - to oraz from2 - to
      */
     private Connection getCostOfAddingTwoEdges(Vertex from1, Vertex from2, Vertex to){
         Connection conn = new Connection();
+        conn.from1 = from1;
+        conn.from2 = from2;
         conn.cost = 0 - from1.getCostToVertex(from2).getValue();
         conn.to = to;
         conn.cost += from1.getCostToVertex(to).getValue() + from2.getCostToVertex(to).getValue();
