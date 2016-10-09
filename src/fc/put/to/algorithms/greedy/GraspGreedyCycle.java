@@ -2,12 +2,8 @@ package fc.put.to.algorithms.greedy;
 
 import fc.put.to.Vertex;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Created by marcin on 08.10.16.
@@ -24,7 +20,24 @@ public class GraspGreedyCycle extends GreedyCycle {
         return vertices.get(nearest);
     }
 
-    @Override
+/*    private Connection getBestConnection2(Vertex vertex){
+        Connection bc = new Connection();
+        bc.from1 = vertex;
+        List<Vertex.Cost> costsToUnvisisted = vertex.getCostList()
+                .stream()
+                .filter(isUnvisited())
+                .collect(Collectors.toList());
+        bc.cost = bestCost.get().getValue();
+        bc.to = vertices.get(bestCost.get().getTarget());
+        List<Vertex> list = incidenceList.get(bc.from1.getId());
+        if (list.size() != 2) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
+        Optional<Vertex> from2 = list.stream().min((o1, o2) -> o1.getCostToVertex(bc.to).getValue()
+                - o2.getCostToVertex(bc.to).getValue());
+        bc.from2 = from2.get();
+        return bc;
+    }*/
+
+/*    @Override
     protected Connection getBestConnection(){
         List<Connection> possibleConn = new ArrayList<>();
         Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 2).findFirst().get().get(0);
@@ -54,12 +67,12 @@ public class GraspGreedyCycle extends GreedyCycle {
         }while(from1.getId() != startingPoint.getId());
         best = chooseBestConnectionFromList(possibleConn);
         return best;
-    }
+    }*/
 
-    @Override
+/*    @Override
     protected Connection chooseBestConnectionFromList(List<Connection> list){
         list = list.stream().sorted((o1, o2) -> o1.cost - o2.cost).limit(3).collect(Collectors.toList());
         Random r = new Random();
         return  list.get(r.nextInt(list.size() < 3 ? list.size() : 3));
-    }
+    }*/
 }
