@@ -16,7 +16,7 @@ public class NearestNeighbor {
 
     //Pola wynikowe
     private int bestCost = Integer.MAX_VALUE;
-    private int avarageCost;
+    private int sumCost;
     private int maxCost;
     private int bestIncidenceIndex;
     private List<List<Vertex>> bestIncidenceList = new ArrayList<>(100);
@@ -44,8 +44,11 @@ public class NearestNeighbor {
     }
 
     private void setResults(int result) {
-        bestCost = result < bestCost ? result : bestCost;
+        boolean isBest = result < bestCost;
+        bestCost = isBest ? result : bestCost;
         maxCost = result > maxCost ? result : maxCost;
+        sumCost += result;
+        bestIncidenceIndex = isBest ? bestIncidenceList.size() : bestIncidenceIndex;
     }
 
     private int getResult(List<Vertex> solution) {
@@ -98,12 +101,19 @@ public class NearestNeighbor {
 
     private void printResult() {
         System.out.println("Min: " + this.bestCost);
-        System.out.println("Avg: " + this.avarageCost);
+        System.out.println("Avg: " + this.sumCost / bestIncidenceList.size());
         System.out.println("Max: " + this.maxCost);
-        //printBestCycle();
-        long l = this.bestIncidenceList.stream().filter(v -> v.size() == 2).count();
-        System.out.println(l);
+        printBestCycle();
+        long checkSum = this.bestIncidenceList.stream().filter(v -> v.size() == Constants.LENGHT_OF_SOLUTION).count();
+        System.out.println("Check sum: " + checkSum);
     }
 
-
+    private void printBestCycle() {
+        List<Vertex> bestSolution = bestIncidenceList.get(bestIncidenceIndex);
+        System.out.print("Best solution: ");
+        for (Vertex vertex : bestSolution) {
+            System.out.print(vertex.getId() + " ");
+        }
+        System.out.println();
+    }
 }
