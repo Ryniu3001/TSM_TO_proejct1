@@ -64,7 +64,7 @@ public class GreedyCycle {
     /**
      * Następna iteracja przyłączenia nowego wierzchołka do grafu
      */
-    private void nextStep(int i){
+    protected void nextStep(int i){
 
         if (i==0) {                             //pierwszy przebieg (wszystkie wierzcholki o stopniu 0)
             Vertex from = vertices.stream().filter(v -> v.getVisited()).findFirst().get();
@@ -89,26 +89,26 @@ public class GreedyCycle {
      * Aby zamknąć cykl dodawana jest krawędź X - Z.
      * @param bc
      */
-    private void addNewVertexToCycle(Connection bc) {
+    protected void addNewVertexToCycle(Connection bc) {
         Vertex newVertex = bc.to;
         List<Vertex> list = incidenceList.get(bc.from1.getId());
-        if (list.size() != 2) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
+        if (list.size() != 1) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
         makeEdge(bc.from1, newVertex);
         removeEdge(bc.from1, bc.from2);
-        makeEdge(bc.from2, newVertex);
+        makeEdge(newVertex, bc.from2);
     }
 
     private void removeEdge(Vertex v1, Vertex v2){
         //System.out.println("REMOVE: " + v1.getId() + " - " + v2.getId());
         incidenceList.get(v1.getId()).remove(v2);
-        incidenceList.get(v2.getId()).remove(v1);
+        //incidenceList.get(v2.getId()).remove(v1);
         cost -= v1.getCostToVertex(v2).getValue();
     }
 
-    private void makeEdge(Vertex v1, Vertex v2){
+    protected void makeEdge(Vertex v1, Vertex v2){
         //System.out.println("EDGE: " + v1.getId() + " - " + v2.getId());
         incidenceList.get(v1.getId()).add(v2);
-        incidenceList.get(v2.getId()).add(v1);
+        //incidenceList.get(v2.getId()).add(v1);
         v2.setVisited(true);
         cost += v1.getCostToVertex(v2).getValue();
     }
@@ -150,7 +150,7 @@ public class GreedyCycle {
         return best;
     }*/
 
-    private Connection getBestConnection2(Vertex vertex){
+    protected Connection getBestConnection2(Vertex vertex){
         Connection bc = new Connection();
         bc.from1 = vertex;
         Optional<Vertex.Cost> bestCost = vertex.getCostList()
@@ -160,10 +160,10 @@ public class GreedyCycle {
         bc.cost = bestCost.get().getValue();
         bc.to = vertices.get(bestCost.get().getTarget());
         List<Vertex> list = incidenceList.get(bc.from1.getId());
-        if (list.size() != 2) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
-        Optional<Vertex> from2 = list.stream().min((o1, o2) -> o1.getCostToVertex(bc.to).getValue()
-                                        - o2.getCostToVertex(bc.to).getValue());
-        bc.from2 = from2.get();
+        if (list.size() != 1) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
+/*        Optional<Vertex> from2 = list.stream().min((o1, o2) -> o1.getCostToVertex(bc.to).getValue()
+                                        - o2.getCostToVertex(bc.to).getValue());*/
+        bc.from2 = list.get(0);
         return bc;
     }
 
@@ -193,7 +193,7 @@ public class GreedyCycle {
     protected Predicate<Vertex.Cost> isUnvisited() {
         return v -> !vertices.get(v.getTarget()).getVisited();
     }
-    private Predicate<Vertex> isVvisited() {
+    protected Predicate<Vertex> isVvisited() {
         return v -> v.getVisited();
     }
 
@@ -201,34 +201,22 @@ public class GreedyCycle {
         System.out.println("Min: " + this.bestCost);
         System.out.println("Avg: " + this.avgCost);
         System.out.println("Max: " + this.maxCost);
-        printBestCycle();
-        long l = this.bestIncidenceList.stream().filter(v -> v.size() == 2).count();
-        System.out.println(l);
+        Integer cost = 0;
+        printBestCycle(this.startingVertex, cost);
+        //long l = this.bestIncidenceList.stream().filter(v -> v.size() == 2).count();
+        //System.out.println(l);
     }
 
 
-    private void printBestCycle(){
-        int cost = 0;
-        int from = this.startingVertex.getId();
-        int previous = -1;
-
-        for (int i=0; i<this.bestIncidenceList.stream().filter(v -> v.size() == 2).count(); i++) {
-            System.out.print(from + " ");
-            int to = -1;
-            if (bestIncidenceList.get(from).get(0).getId() != previous)
-                to = bestIncidenceList.get(from).get(0).getId();
-            else
-                to = bestIncidenceList.get(from).get(1).getId();
-
-            cost += vertices.get(from).getCostToVertex(vertices.get(to)).getValue();
-            previous = from;
-            from = to;
+    private void printBestCycle(Vertex v, Integer cost){
+        System.out.print(v.getId() + " ");
+        Vertex next = this.bestIncidenceList.get(v.getId()).get(0);
+        cost += v.getCostToVertex(next).getValue();
+        if (next.getId() == this.startingVertex.getId()) {
+            System.out.println(next.getId() + " ");
+            return;
         }
-
-        //cost += vertices.get(from1).getCostToVertex(vertices.get(this.startingVertex.getId())).getValue();
-
-        System.out.println(from);
-        System.out.println(cost);
+        printBestCycle(next, cost);
     }
     public Integer getBestCost() {
         return bestCost;

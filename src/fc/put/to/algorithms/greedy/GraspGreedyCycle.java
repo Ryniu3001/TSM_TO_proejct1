@@ -4,6 +4,7 @@ import fc.put.to.Vertex;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Created by marcin on 08.10.16.
@@ -19,6 +20,49 @@ public class GraspGreedyCycle extends GreedyCycle {
         int nearest = v.getCostList().get(r.nextInt(3)).getTarget();
         return vertices.get(nearest);
     }
+    /**
+     * Następna iteracja przyłączenia nowego wierzchołka do grafu
+     */
+    @Override
+    protected void nextStep(int i){
+
+        if (i==0) {                             //pierwszy przebieg (wszystkie wierzcholki o stopniu 0)
+            Vertex from = vertices.stream().filter(v -> v.getVisited()).findFirst().get();
+            Vertex nn =findNearestNeighbour(from);
+            makeEdge(from, nn);
+            makeEdge(nn, from);
+        }else{
+            //Connection bestConnection = getBestConnection();
+            List<Connection> bestConnections = vertices.stream()
+                    .filter(isVvisited())
+                    .map(this::getBestConnection2)
+                    .sorted((o1, o2) -> o1.cost - o2.cost)
+                    .collect(Collectors.toList());
+            Random r = new Random();
+            Connection randomNearest = bestConnections.get(bestConnections.size() <= 2 ? r.nextInt(bestConnections.size()) : r.nextInt(3));
+            addNewVertexToCycle(randomNearest);
+        }
+    }
+
+/*    protected Connection getBestConnection2(Vertex vertex){
+        Connection bc = new Connection();
+        bc.from1 = vertex;
+        Random r = new Random();
+
+        Vertex.Cost bestCost = vertex.getCostList()
+                .stream()
+                .filter(isUnvisited())
+                .limit(3)
+                .collect(Collectors.toList())
+                .get(r.nextInt(3));
+        bc.cost = bestCost.getValue();
+        bc.to = vertices.get(bestCost.getTarget());
+        List<Vertex> list = incidenceList.get(bc.from1.getId());
+        if (list.size() != 1) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
+
+        bc.from2 = list.get(0);
+        return bc;
+    }*/
 
 /*    private Connection getBestConnection2(Vertex vertex){
         Connection bc = new Connection();

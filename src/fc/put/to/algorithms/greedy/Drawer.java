@@ -32,11 +32,10 @@ public class Drawer {
         readFileWithCoordinates();
         this.graph = new MultiGraph("Hello World!");
         this.vertices.forEach(this::drawNewVertex);
-        Vertex from = incidenceList.stream().filter(vertices1 -> vertices1.size() == 2).findFirst().get().get(0);
+        Vertex from = incidenceList.stream().filter(vertices1 -> vertices1.size() == 1).findFirst().get().get(0);
         Vertex previous = from;
 
         for (int i=0; i<50; i++) {
-            System.out.print(from + " ");
             Vertex to ;
             if (incidenceList.get(from.getId()).get(0).getId() != previous.getId())
                 to = incidenceList.get(from.getId()).get(0);
