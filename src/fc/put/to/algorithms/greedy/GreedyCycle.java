@@ -1,5 +1,6 @@
 package fc.put.to.algorithms.greedy;
 
+import fc.put.to.Constants;
 import fc.put.to.Vertex;
 
 import java.util.ArrayList;
@@ -72,12 +73,16 @@ public class GreedyCycle {
             makeEdge(from, nn);
             makeEdge(nn, from);
         }else{
-            //Connection bestConnection = getBestConnection();
-            Optional<Connection> bestConnection = vertices.stream()
+            if (Constants.VERSION_OF_GC == 1){
+                Optional<Connection> bestConnection = vertices.stream()
                     .filter(isVvisited())
                     .map(this::getBestConnection2)
                     .min((o1, o2) -> o1.cost - o2.cost);
-            addNewVertexToCycle(bestConnection.get());
+                addNewVertexToCycle(bestConnection.get());
+            }else {
+                Connection bestConnection = getBestConnection();
+                addNewVertexToCycle(bestConnection);
+            }
         }
     }
 
@@ -99,33 +104,29 @@ public class GreedyCycle {
     }
 
     private void removeEdge(Vertex v1, Vertex v2){
-        //System.out.println("REMOVE: " + v1.getId() + " - " + v2.getId());
         incidenceList.get(v1.getId()).remove(v2);
-        //incidenceList.get(v2.getId()).remove(v1);
         cost -= v1.getCostToVertex(v2).getValue();
     }
 
     protected void makeEdge(Vertex v1, Vertex v2){
-        //System.out.println("EDGE: " + v1.getId() + " - " + v2.getId());
         incidenceList.get(v1.getId()).add(v2);
-        //incidenceList.get(v2.getId()).add(v1);
         v2.setVisited(true);
         cost += v1.getCostToVertex(v2).getValue();
     }
 
     /**
-     * Wyznacza najlepsze mozliwe polaczenia z kazdego wierzcholka
+     * Wyznacza najlepsze mozliwe polaczenia (optymalizuje cykl) z kazdego wierzcholka
      * (usuniecie krawedzi i dodanie dwóch nowych dla zachowania cyklu)
      * a nastepnie zwraca to o najmniejszym koszcie.
      *
      * @return
      */
-/*    protected Connection getBestConnection(){
+    protected Connection getBestConnection(){
         List<Connection> possibleConn = new ArrayList<>();
-        Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 2).findFirst().get().get(0);
+        Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 1).findFirst().get().get(0);
         Vertex startingPoint = from1;
         Vertex from2 = this.incidenceList.get(from1.getId()).get(0);
-        Connection best = new Connection();
+        Connection best;
         do{
             Vertex finalFrom = from1;
             Vertex finalFrom1 = from2;
@@ -148,8 +149,14 @@ public class GreedyCycle {
         }while(from1.getId() != startingPoint.getId());
         best = chooseBestConnectionFromList(possibleConn);
         return best;
-    }*/
+    }
 
+    /**
+     * Optymalizuje koszt dodania nowej krawędzi.
+     * Wyszukuje krawędz o najniższym koszcie jaką można dodać do cyklu
+     * @param vertex
+     * @return
+     */
     protected Connection getBestConnection2(Vertex vertex){
         Connection bc = new Connection();
         bc.from1 = vertex;
@@ -160,18 +167,15 @@ public class GreedyCycle {
         bc.cost = bestCost.get().getValue();
         bc.to = vertices.get(bestCost.get().getTarget());
         List<Vertex> list = incidenceList.get(bc.from1.getId());
-        if (list.size() != 1) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
-/*        Optional<Vertex> from2 = list.stream().min((o1, o2) -> o1.getCostToVertex(bc.to).getValue()
-                                        - o2.getCostToVertex(bc.to).getValue());*/
         bc.from2 = list.get(0);
         return bc;
     }
 
-/*    protected Connection chooseBestConnectionFromList(List<Connection> list){
+    protected Connection chooseBestConnectionFromList(List<Connection> list){
         return list.stream().min((o1, o2) -> {
             return o1.cost - o2.cost == 0 ? 1 : o1.cost - o2.cost;      //w przypadku rownych traktuj drugi jako mniejszy
         }).get();
-    }*/
+    }
     /**
      * Zwraca koszt dodania dwóch krawędzi from1 - to oraz from2 - to
      */
@@ -203,8 +207,6 @@ public class GreedyCycle {
         System.out.println("Max: " + this.maxCost);
         Integer cost = 0;
         printBestCycle(this.startingVertex, cost);
-        //long l = this.bestIncidenceList.stream().filter(v -> v.size() == 2).count();
-        //System.out.println(l);
     }
 
 
@@ -226,7 +228,7 @@ public class GreedyCycle {
         return bestIncidenceList;
     }
     /**
-     * Wierzcholki from1 i from2 to takie pomiedzy ktorymi usunieto krawedz, w celu dodania krwaedzi from1-to, oraz from2-to
+     * Wierzcholki from1 i from2 to takie pomiedzy ktorymi usunieto łuk, w celu dodania łuków from1-to, oraz from2-to
      * Koszt jest to zmiana kosztu grafu po wykonaniu powyzszych operacji
      */
     public class Connection {

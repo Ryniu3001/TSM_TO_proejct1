@@ -1,8 +1,11 @@
 package fc.put.to.algorithms.greedy;
 
+import fc.put.to.Constants;
 import fc.put.to.Vertex;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -32,71 +35,41 @@ public class GraspGreedyCycle extends GreedyCycle {
             makeEdge(from, nn);
             makeEdge(nn, from);
         }else{
-            //Connection bestConnection = getBestConnection();
-            List<Connection> bestConnections = vertices.stream()
+            if (Constants.VERSION_OF_GC == 1) {
+                List<Connection> bestConnections = vertices.stream()
                     .filter(isVvisited())
                     .map(this::getBestConnection2)
                     .sorted((o1, o2) -> o1.cost - o2.cost)
                     .collect(Collectors.toList());
-            Random r = new Random();
-            Connection randomNearest = bestConnections.get(bestConnections.size() <= 2 ? r.nextInt(bestConnections.size()) : r.nextInt(3));
-            addNewVertexToCycle(randomNearest);
+                Random r = new Random();
+                Connection randomNearest = bestConnections.get(bestConnections.size() <= 2 ? r.nextInt(bestConnections.size()) : r.nextInt(3));
+                addNewVertexToCycle(randomNearest);
+            }else {
+                Connection randomNearest = getBestConnection();
+                addNewVertexToCycle(randomNearest);
+            }
         }
     }
 
-/*    protected Connection getBestConnection2(Vertex vertex){
-        Connection bc = new Connection();
-        bc.from1 = vertex;
-        Random r = new Random();
-
-        Vertex.Cost bestCost = vertex.getCostList()
-                .stream()
-                .filter(isUnvisited())
-                .limit(3)
-                .collect(Collectors.toList())
-                .get(r.nextInt(3));
-        bc.cost = bestCost.getValue();
-        bc.to = vertices.get(bestCost.getTarget());
-        List<Vertex> list = incidenceList.get(bc.from1.getId());
-        if (list.size() != 1) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
-
-        bc.from2 = list.get(0);
-        return bc;
-    }*/
-
-/*    private Connection getBestConnection2(Vertex vertex){
-        Connection bc = new Connection();
-        bc.from1 = vertex;
-        List<Vertex.Cost> costsToUnvisisted = vertex.getCostList()
-                .stream()
-                .filter(isUnvisited())
-                .collect(Collectors.toList());
-        bc.cost = bestCost.get().getValue();
-        bc.to = vertices.get(bestCost.get().getTarget());
-        List<Vertex> list = incidenceList.get(bc.from1.getId());
-        if (list.size() != 2) System.out.println("Cos jest nie tak z grafem! Wierzcholek " + bc.from1.getId() + " ma stopien rozny od 2!"); //TODO: throw exception
-        Optional<Vertex> from2 = list.stream().min((o1, o2) -> o1.getCostToVertex(bc.to).getValue()
-                - o2.getCostToVertex(bc.to).getValue());
-        bc.from2 = from2.get();
-        return bc;
-    }*/
-
-/*    @Override
+    /**
+     * Zwraca najlepsze połączenie optymalizując koszt cyklu (dodania dwóch krawędzi o usunięcia jednej)
+     * @return
+     */
+    @Override
     protected Connection getBestConnection(){
         List<Connection> possibleConn = new ArrayList<>();
-        Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 2).findFirst().get().get(0);
+        Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 1).findFirst().get().get(0);
         Vertex startingPoint = from1;
         Vertex from2 = this.incidenceList.get(from1.getId()).get(0);
-        Connection best = new Connection();
+        Connection best ;
         do{
             Vertex finalFrom = from1;
             Vertex finalFrom1 = from2;
-            List<Connection> connPropositions = vertices.stream()               //najlepsze zmiany w grafie przy usunięciu każdej krawędzi
+            Optional<Connection> connProposition = vertices.stream()               //najlepsze zmiany w grafie przy usunięciu każdej krawędzi
                     .filter(v -> !v.getVisited())
                     .map(v -> getCostOfAddingTwoEdges(finalFrom, finalFrom1, v))
-                    .sorted((o1, o2) -> o1.cost - o2.cost)
-                    .collect(Collectors.toList());
-            IntStream.range(0,3).forEach(v -> possibleConn.add(connPropositions.get(v)));       //wybieramy 3 najlepsze zmiany
+                    .min((o1, o2) -> o1.cost - o2.cost);
+            possibleConn.add(connProposition.get());
             Vertex previous = from1;
             from1 = from2;
             Optional<Vertex> next = this.incidenceList.get(from1.getId()).stream()
@@ -111,12 +84,12 @@ public class GraspGreedyCycle extends GreedyCycle {
         }while(from1.getId() != startingPoint.getId());
         best = chooseBestConnectionFromList(possibleConn);
         return best;
-    }*/
+    }
 
-/*    @Override
+    @Override
     protected Connection chooseBestConnectionFromList(List<Connection> list){
         list = list.stream().sorted((o1, o2) -> o1.cost - o2.cost).limit(3).collect(Collectors.toList());
         Random r = new Random();
         return  list.get(r.nextInt(list.size() < 3 ? list.size() : 3));
-    }*/
+    }
 }
