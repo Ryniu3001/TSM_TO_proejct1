@@ -1,6 +1,5 @@
 package fc.put.to.algorithms.greedy;
 
-import fc.put.to.Constants;
 import fc.put.to.Vertex;
 
 import java.util.ArrayList;
@@ -35,19 +34,9 @@ public class GraspGreedyCycle extends GreedyCycle {
             makeEdge(from, nn);
             makeEdge(nn, from);
         }else{
-            if (Constants.VERSION_OF_GC == 1) {
-                List<Connection> bestConnections = vertices.stream()
-                    .filter(isVvisited())
-                    .map(this::getBestConnection2)
-                    .sorted((o1, o2) -> o1.cost - o2.cost)
-                    .collect(Collectors.toList());
-                Random r = new Random();
-                Connection randomNearest = bestConnections.get(bestConnections.size() <= 2 ? r.nextInt(bestConnections.size()) : r.nextInt(3));
-                addNewVertexToCycle(randomNearest);
-            }else {
-                Connection randomNearest = getBestConnection();
-                addNewVertexToCycle(randomNearest);
-            }
+            Connection randomNearest = getBestConnection();
+            addNewVertexToCycle(randomNearest);
+
         }
     }
 
@@ -58,9 +47,9 @@ public class GraspGreedyCycle extends GreedyCycle {
     @Override
     protected Connection getBestConnection(){
         List<Connection> possibleConn = new ArrayList<>();
-        Vertex from1 = this.incidenceList.stream().filter(v -> v.size() == 1).findFirst().get().get(0);
+        Vertex from1 = this.incidenceList.stream().filter(v -> v != null).findFirst().get();
         Vertex startingPoint = from1;
-        Vertex from2 = this.incidenceList.get(from1.getId()).get(0);
+        Vertex from2 = this.incidenceList.get(from1.getId());
         Connection best ;
         do{
             Vertex finalFrom = from1;
@@ -72,12 +61,11 @@ public class GraspGreedyCycle extends GreedyCycle {
             possibleConn.add(connProposition.get());
             Vertex previous = from1;
             from1 = from2;
-            Optional<Vertex> next = this.incidenceList.get(from1.getId()).stream()
-                    .filter(v -> v.getId() != previous.getId())
-                    .findFirst();
+            Vertex next = this.incidenceList.get(from1.getId());
 
-            if (next.isPresent())
-                from2 = next.get();
+
+            if (next != previous)
+                from2 = next;
             else
                 break;
 

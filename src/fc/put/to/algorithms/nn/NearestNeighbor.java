@@ -30,7 +30,6 @@ public class NearestNeighbor {
     }
 
     public void run() {
-        System.out.println("NN started");
         sortCostListForAllVertices();
         for (Vertex vertex : vertices) {
             List<Vertex> solution = findSolution(vertex);
@@ -39,7 +38,6 @@ public class NearestNeighbor {
             bestIncidenceList.add(solution);
         }
 
-        System.out.println("NN finished");
         printResult();
     }
 
@@ -118,7 +116,8 @@ public class NearestNeighbor {
         System.out.println("Avg: " + this.sumCost / bestIncidenceList.size());
         System.out.println("Max: " + this.maxCost);
         printBestCycle();
-        printCheckSum();
+        //printCheckSum();
+        System.out.println();
     }
 
     private void printBestCycle() {
