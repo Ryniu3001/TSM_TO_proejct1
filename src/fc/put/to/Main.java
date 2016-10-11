@@ -3,6 +3,7 @@ package fc.put.to;
 import fc.put.to.algorithms.greedy.Drawer;
 import fc.put.to.algorithms.nn.GraspNearestNeighbor;
 import fc.put.to.algorithms.nn.NearestNeighbor;
+import fc.put.to.algorithms.random.RandomSolution;
 
 import java.util.List;
 
@@ -14,15 +15,18 @@ public class Main {
         gc.run();
         GraspGreedyCycle gc = new GraspGreedyCycle(vertexList);
         gc.run();
-*/
+
 
         NearestNeighbor nearestNeighbor = new NearestNeighbor(vertexList);
         nearestNeighbor.run();
 
         GraspNearestNeighbor graspNearestNeighbor = new GraspNearestNeighbor(vertexList);
         graspNearestNeighbor.run();
+*/
 
-        Drawer drawer = new Drawer();
-        drawer.drawNN(nearestNeighbor.getBestSolution());
+        new RandomSolution(vertexList).run();
+
+//        Drawer drawer = new Drawer();
+//        drawer.drawNN(nearestNeighbor.getBestSolution());
     }
 }
