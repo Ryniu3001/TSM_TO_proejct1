@@ -1,6 +1,7 @@
 package fc.put.to;
 
 import fc.put.to.algorithms.greedy.GreedyCycle;
+import fc.put.to.algorithms.local.LocalSearch;
 
 import java.util.List;
 
@@ -10,6 +11,9 @@ public class Main {
         List<Vertex> vertexList = Parser.readFile();
         GreedyCycle gc = new GreedyCycle(vertexList);
         gc.run();
+
+        LocalSearch ls = new LocalSearch(vertexList, gc.getBestIncidenceList(), gc.getStartingVertex());
+        ls.run();
 /*        GraspGreedyCycle gc = new GraspGreedyCycle(vertexList);
         gc.run();
 

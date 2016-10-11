@@ -197,6 +197,11 @@ public class GreedyCycle {
     public List<Vertex> getBestIncidenceList() {
         return bestIncidenceList;
     }
+
+    public Vertex getStartingVertex() {
+        return startingVertex;
+    }
+
     /**
      * Wierzcholki from1 i from2 to takie pomiedzy ktorymi usunieto łuk, w celu dodania łuków from1-to, oraz from2-to
      * Koszt jest to zmiana kosztu grafu po wykonaniu powyzszych operacji

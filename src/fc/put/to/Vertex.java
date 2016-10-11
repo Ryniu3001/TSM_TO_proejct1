@@ -56,6 +56,10 @@ public class Vertex {
         else
             throw new NullPointerException("Brak docelowego wierzcholka.");
     }
+    @Override
+    public String toString(){
+        return this.id.toString();
+    }
 
     public class Cost implements Comparable<Cost> {
 
