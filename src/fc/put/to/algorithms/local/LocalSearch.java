@@ -13,15 +13,14 @@ import java.util.stream.IntStream;
 public class LocalSearch {
     private final List<Vertex> vertices;
     private final List<Vertex> cycleList;
-    private final Vertex beginigVertex;
 
-    public LocalSearch(List<Vertex> vertices, List<Vertex> beginigSolution, Vertex startingVertex) {
+
+    public LocalSearch(List<Vertex> vertices, List<Vertex> beginigSolution) {
         this.cycleList = beginigSolution;
         this.vertices = vertices;
-        this.beginigVertex = startingVertex;
     }
 
-    public void run() {
+    public LSResult run() {
        // System.out.println(this.beginigVertex.getId());
         VertexReplacement globalMinVr;
         EdgesReplacement globalMinEr;
@@ -44,6 +43,8 @@ public class LocalSearch {
                 cycleList.set(globalMinVr.vertexIndex, globalMinVr.forVertex);
             }
         }while(globalMinEr.deltaCost < 0 || globalMinVr.deltaCost < 0);
+
+        return new LSResult(calculateCost(), this.cycleList);
     }
 
     /**
@@ -104,12 +105,12 @@ public class LocalSearch {
         return v -> v != null;
     }
 
-    private String checkCycle(List<Vertex> cycleList){
+    private Integer calculateCost(){
         final Integer[] cost = {0};
-        IntStream.range(1, cycleList.size()).forEach(i -> {
-            cost[0] += cycleList.get(i-1).getCostToVertex(cycleList.get(i)).getValue();
+        IntStream.range(1, this.cycleList.size()).forEach(i -> {
+            cost[0] += this.cycleList.get(i-1).getCostToVertex(this.cycleList.get(i)).getValue();
         });
-        return cost[0].toString();
+        return cost[0];
     }
 
     private class VertexReplacement {
