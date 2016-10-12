@@ -12,8 +12,15 @@ public class Main {
         GreedyCycle gc = new GreedyCycle(vertexList);
         gc.run();
 
-        LocalSearch ls = new LocalSearch(vertexList, gc.getBestIncidenceList(), gc.getStartingVertex());
-        ls.run();
+        long start = System.nanoTime();
+        vertexList.stream().forEach(v -> {
+            LocalSearch ls = new LocalSearch(vertexList, GreedyCycle.incidenceToCycleList(gc.getAllIncidenceMap().get(v), v), v);
+            ls.run();
+        });
+
+
+        long end = System.nanoTime();
+        System.out.println((end - start) / 1e9);
 /*        GraspGreedyCycle gc = new GraspGreedyCycle(vertexList);
         gc.run();
 

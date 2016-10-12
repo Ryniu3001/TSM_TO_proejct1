@@ -61,6 +61,17 @@ public class Vertex {
         return this.id.toString();
     }
 
+    @Override
+    public boolean equals(Object object)
+    {
+        boolean same = false;
+        if (object != null && object instanceof Vertex)
+        {
+            same = this.id == ((Vertex) object).getId();
+        }
+        return same;
+    }
+
     public class Cost implements Comparable<Cost> {
 
         private Integer target;

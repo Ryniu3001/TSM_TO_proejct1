@@ -1,9 +1,12 @@
 package fc.put.to.algorithms.greedy;
 
+import fc.put.to.Constants;
 import fc.put.to.Vertex;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
@@ -15,7 +18,7 @@ public class GreedyCycle {
      * Lista wierzcholkow, dla kazdego wierzcholka zaweira posortowaną
      * liste kosztów dotarcia do pozostałych wierzchołków.
      */
-    protected final List<Vertex> vertices;
+    protected List<Vertex> vertices;
     protected List<Vertex> incidenceList;
     private Integer cost;
 
@@ -24,12 +27,17 @@ public class GreedyCycle {
     private Integer avgCost;
     private Integer maxCost;
     private List<Vertex> bestIncidenceList;
+    private Map<Vertex, List<Vertex>> allIncidenceMap;
+    private Map<Vertex, Integer> allCostMap;
     private Vertex startingVertex;
 
     public GreedyCycle(List<Vertex> vertices){
         this.vertices = vertices;
         initialize();
         this.bestCost = null;
+        this.allCostMap = new HashMap<>();
+        this.allIncidenceMap = new HashMap<>();
+
     }
 
     private void initialize(){
@@ -46,7 +54,7 @@ public class GreedyCycle {
         printResult();
     }
 
-    private void findHamiltonianPath(Vertex initialVertex) {
+    public void findHamiltonianPath(Vertex initialVertex) {
         initialVertex.setVisited(true);
         IntStream.rangeClosed(0, 48).forEach(i -> nextStep(i));
         this.maxCost = this.cost > this.maxCost ? this.cost : this.maxCost;
@@ -56,6 +64,8 @@ public class GreedyCycle {
             bestCost = cost;
             bestIncidenceList = incidenceList;
         }
+        this.allIncidenceMap.put(initialVertex, this.incidenceList);
+        this.allCostMap.put(initialVertex, this.cost);
         initialize();
     }
 
@@ -63,7 +73,6 @@ public class GreedyCycle {
      * Następna iteracja przyłączenia nowego wierzchołka do grafu
      */
     protected void nextStep(int i){
-
         if (i==0) {                             //pierwszy przebieg (wszystkie wierzcholki o stopniu 0)
             Vertex from = vertices.stream().filter(v -> v.getVisited()).findFirst().get();
             Vertex nn =findNearestNeighbour(from);
@@ -72,7 +81,6 @@ public class GreedyCycle {
         }else{
             Connection bestConnection = getBestConnection();
             addNewVertexToCycle(bestConnection);
-
         }
     }
 
@@ -190,6 +198,21 @@ public class GreedyCycle {
         }
         printBestCycle(next, cost);
     }
+
+    /**
+     * Konwertuje liste sąsiedztwa na liste cyklu (czyli liste gdzie wierzcholki wystepuja w kolejnosci jak w cyklu)
+     * @param incList
+     * @param startingVertex
+     * @return
+     */
+    public static List<Vertex> incidenceToCycleList(List<Vertex> incList, Vertex startingVertex) {
+        List<Vertex> cycleList = new ArrayList<>();
+        cycleList.add(startingVertex);
+        IntStream.range(0, Constants.LENGHT_OF_SOLUTION).forEach(value -> {
+            cycleList.add(incList.get(cycleList.get(cycleList.size() - 1).getId()));
+        });
+        return cycleList;
+    }
     public Integer getBestCost() {
         return bestCost;
     }
@@ -200,6 +223,14 @@ public class GreedyCycle {
 
     public Vertex getStartingVertex() {
         return startingVertex;
+    }
+
+    public Map<Vertex, List<Vertex>> getAllIncidenceMap() {
+        return allIncidenceMap;
+    }
+
+    public Map<Vertex, Integer> getAllCostMap() {
+        return allCostMap;
     }
 
     /**
