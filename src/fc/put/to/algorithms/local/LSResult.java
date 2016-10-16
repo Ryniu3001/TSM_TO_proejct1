@@ -10,10 +10,12 @@ import java.util.List;
 public class LSResult {
     private Integer cost;
     private List<Vertex> cycle;
+    private double time;
 
-    public LSResult(Integer cost, List<Vertex> cycle) {
+    public LSResult(Integer cost, List<Vertex> cycle, double time) {
         this.cost = cost;
         this.cycle = cycle;
+        this.time = time;
     }
 
     public Integer getCost() {
@@ -30,6 +32,14 @@ public class LSResult {
 
     public void setCycle(List<Vertex> cycle) {
         this.cycle = cycle;
+    }
+
+    public double getTime() {
+        return time;
+    }
+
+    public void setTime(double time) {
+        this.time = time;
     }
 
     @Override

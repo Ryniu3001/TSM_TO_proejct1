@@ -22,6 +22,7 @@ public class LocalSearch {
 
     public LSResult run() {
        // System.out.println(this.beginigVertex.getId());
+        long start = System.nanoTime();
         VertexReplacement globalMinVr;
         EdgesReplacement globalMinEr;
         do {
@@ -43,8 +44,8 @@ public class LocalSearch {
                 cycleList.set(globalMinVr.vertexIndex, globalMinVr.forVertex);
             }
         }while(globalMinEr.deltaCost < 0 || globalMinVr.deltaCost < 0);
-
-        return new LSResult(calculateCost(), this.cycleList);
+        long end = System.nanoTime();
+        return new LSResult(calculateCost(), this.cycleList, (end - start) / 1e6);
     }
 
     /**
