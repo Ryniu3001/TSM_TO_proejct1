@@ -4,7 +4,6 @@ import fc.put.to.Vertex;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -54,11 +53,12 @@ public class GraspGreedyCycle extends GreedyCycle {
         do{
             Vertex finalFrom = from1;
             Vertex finalFrom1 = from2;
-            Optional<Connection> connProposition = vertices.stream()               //najlepsze zmiany w grafie przy usunięciu każdej krawędzi
+            List<Connection> connProposition = vertices.stream()               //najlepsze zmiany w grafie przy usunięciu każdej krawędzi
                     .filter(v -> !v.getVisited())
                     .map(v -> getCostOfAddingTwoEdges(finalFrom, finalFrom1, v))
-                    .min((o1, o2) -> o1.cost - o2.cost);
-            possibleConn.add(connProposition.get());
+                    .collect(Collectors.toList());
+                    //.min((o1, o2) -> o1.cost - o2.cost);
+            possibleConn.addAll(connProposition);
             Vertex previous = from1;
             from1 = from2;
             Vertex next = this.incidenceList.get(from1.getId());
