@@ -54,7 +54,7 @@ public class NearestNeighbor {
                 .collect(Collectors.toList());
     }
 
-    private List<Vertex> findSolution(Vertex vertex) {
+    public List<Vertex> findSolution(Vertex vertex) {
         Vertex firstVertex = vertex;
         List<Vertex> solution = new ArrayList<>(Constants.LENGHT_OF_SOLUTION);
         solution.add(vertex);
