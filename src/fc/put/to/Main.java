@@ -8,6 +8,7 @@ import fc.put.to.algorithms.nn.GraspNearestNeighbor;
 import fc.put.to.algorithms.nn.NearestNeighbor;
 import fc.put.to.algorithms.random.RandomSolution;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +23,30 @@ public class Main {
         //greedyCycle(vertexList);
         //greedyCycleGrasp(vertexList);
 
-        //randomSolution(vertexList);
+        random(vertexList);
 
         nnLocal(vertexList);
+        nnGraspLocal(vertexList);
+
+        randomLocal(vertexList);
+    }
+
+    private static void randomLocal(List<Vertex> vertexList) {
+        RandomSolution randomSolution = new RandomSolution(vertexList);
+        randomSolution.run();
+
+        LSResult lsResult = new LocalSearch(vertexList, randomSolution.getBestSolution()).run();
+        List<LSResult> gResults = new ArrayList<>(1);
+        gResults.add(lsResult);
+        printLCResult(gResults);
+    }
+
+    private static void nnGraspLocal(List<Vertex> vertexList) {
+        GraspNearestNeighbor graspNearestNeighbor = new GraspNearestNeighbor(vertexList);
+        List<LSResult> gResult = vertexList.stream()
+                .map(v -> new LocalSearch(vertexList, graspNearestNeighbor.findSolution(v)).run())
+                .collect(Collectors.toList());
+        printLCResult(gResult);
     }
 
     private static void nnLocal(List<Vertex> vertexList) {
@@ -35,7 +57,7 @@ public class Main {
         printLCResult(gResult);
     }
 
-    private static void randomSolution(List<Vertex> vertexList) {
+    private static void random(List<Vertex> vertexList) {
         RandomSolution randomSolution = new RandomSolution(vertexList);
         randomSolution.run();
     }
