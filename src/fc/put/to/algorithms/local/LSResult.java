@@ -2,6 +2,7 @@ package fc.put.to.algorithms.local;
 
 import fc.put.to.Vertex;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,8 +15,13 @@ public class LSResult {
 
     public LSResult(Integer cost, List<Vertex> cycle, double time) {
         this.cost = cost;
-        this.cycle = cycle;
+        this.cycle = new ArrayList<>(cycle);
         this.time = time;
+    }
+
+    public LSResult(Integer cost, List<Vertex> cycle) {
+        this.cost = cost;
+        this.cycle = cycle;
     }
 
     public Integer getCost() {

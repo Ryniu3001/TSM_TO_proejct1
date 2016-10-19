@@ -2,6 +2,7 @@ package fc.put.to;
 
 import fc.put.to.algorithms.greedy.GraspGreedyCycle;
 import fc.put.to.algorithms.greedy.GreedyCycle;
+import fc.put.to.algorithms.local.IteratedLocalSearch;
 import fc.put.to.algorithms.local.LSResult;
 import fc.put.to.algorithms.local.LocalSearch;
 import fc.put.to.algorithms.local.MultipleLocalSearch;
@@ -11,14 +12,15 @@ import fc.put.to.algorithms.random.RandomSolution;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Main {
 
     public static void main(String[] args) {
         List<Vertex> vertexList = Parser.readFile();
-        multipleLocalSearch(vertexList);
+        //multipleLocalSearch(vertexList);
+        iteratedLocalSearch(vertexList);
         //nn(vertexList);
         //nnGrasp(vertexList);
 
@@ -37,8 +39,14 @@ public class Main {
         long start = System.currentTimeMillis();
         LSResult result = mls.run(vertexList);
         long stop = System.currentTimeMillis();
-        System.out.println("Time [s]: " + (stop-start) / 1000);
+        System.out.println("Time [s]: " + (stop-start) / 1e3);
         System.out.println(result);
+    }
+
+    private static void iteratedLocalSearch(List<Vertex> vertices){
+
+        IteratedLocalSearch ils = new IteratedLocalSearch(vertices);
+        ils.run();
     }
 
     private static void randomLocal(List<Vertex> vertexList) {
