@@ -2,13 +2,11 @@ package fc.put.to;
 
 import fc.put.to.algorithms.greedy.GraspGreedyCycle;
 import fc.put.to.algorithms.greedy.GreedyCycle;
-import fc.put.to.algorithms.local.IteratedLocalSearch;
-import fc.put.to.algorithms.local.LSResult;
-import fc.put.to.algorithms.local.LocalSearch;
-import fc.put.to.algorithms.local.MultipleLocalSearch;
+import fc.put.to.algorithms.local.*;
 import fc.put.to.algorithms.nn.GraspNearestNeighbor;
 import fc.put.to.algorithms.nn.NearestNeighbor;
 import fc.put.to.algorithms.random.RandomSolution;
+import fc.put.to.algorithms.util.Checker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +17,14 @@ public class Main {
 
     public static void main(String[] args) {
         List<Vertex> vertexList = Parser.readFile();
+        System.out.println("Reading finished");
 
-        
+        MultipleLocalSearch2 alg = new MultipleLocalSearch2();
+        List<LSResult> results = alg.run(vertexList);
+        System.out.println("MLS 2 finished");
+
+        new Checker(results).run();
+
 
         // ------------------------------------------------
 

@@ -1,15 +1,43 @@
 package fc.put.to.algorithms.util;
 
 import fc.put.to.Vertex;
+import fc.put.to.algorithms.local.LSResult;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by inf109782 on 25.10.2016.
  */
 public class Checker {
 
-    public int checkVertices(List<Vertex> list1, List<Vertex> list2) {
+    private List<LSResult> lsResults;
+
+    public Checker(List<LSResult> lsResults) {
+        this.lsResults = lsResults;
+    }
+
+    public void run() {
+        List<Double> result = IntStream.range(0, lsResults.size())
+                .sequential()
+                .mapToObj(i -> sth(this.lsResults.get(i), i))
+                .collect(Collectors.toList());
+
+        LSResult best = lsResults.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get();
+        
+    }
+
+    private Double sth(LSResult result, int i) {
+        System.out.println("sth " + i);
+        return IntStream.range(i + 1, lsResults.size())
+                .sequential().map(v -> checkVertices(result.getCycle(), lsResults.get(v).getCycle()))
+                .average()
+                .getAsDouble();
+
+    }
+
+    private int checkVertices(List<Vertex> list1, List<Vertex> list2) {
         int result = 0;
         for (Vertex vertex : list1) {
             if (list2.contains(vertex)) {
@@ -20,7 +48,7 @@ public class Checker {
         return result;
     }
 
-    public int checkEdges(List<Vertex> list1, List<Vertex> list2) {
+    private int checkEdges(List<Vertex> list1, List<Vertex> list2) {
         int result = 0;
         boolean[][] matrix1 = createMatrix(list1);
         boolean[][] matrix2 = createMatrix(list2);
