@@ -12,8 +12,8 @@ import fc.put.to.algorithms.random.RandomSolution;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Main {
 
@@ -21,6 +21,7 @@ public class Main {
         List<Vertex> vertexList = Parser.readFile();
         //multipleLocalSearch(vertexList);
         iteratedLocalSearch(vertexList);
+
         //nn(vertexList);
         //nnGrasp(vertexList);
 
@@ -34,19 +35,24 @@ public class Main {
 //        randomLocal(vertexList);
     }
 
-    private static void multipleLocalSearch(List<Vertex> vertexList){
-        MultipleLocalSearch mls = new MultipleLocalSearch();
-        long start = System.currentTimeMillis();
-        LSResult result = mls.run(vertexList);
-        long stop = System.currentTimeMillis();
-        System.out.println("Time [s]: " + (stop-start) / 1e3);
-        System.out.println(result);
+    private static void multipleLocalSearch(List<Vertex> vertexList) {
+        List<LSResult> results = new ArrayList<>();
+        IntStream.range(0, Constants.TEST_NUMBER).forEach(i -> {
+            MultipleLocalSearch mls = new MultipleLocalSearch();
+            results.add(mls.run(vertexList));
+        });
+
+        printLCResult(results);
     }
 
-    private static void iteratedLocalSearch(List<Vertex> vertices){
+    private static void iteratedLocalSearch(List<Vertex> vertices) {
+        List<LSResult> results = new ArrayList<>();
+        IntStream.range(0, Constants.TEST_NUMBER).forEach(i -> {
+            IteratedLocalSearch ils = new IteratedLocalSearch(vertices);
+            results.add(ils.run());
+        });
 
-        IteratedLocalSearch ils = new IteratedLocalSearch(vertices);
-        ils.run();
+        printLCResult(results);
     }
 
     private static void randomLocal(List<Vertex> vertexList) {
@@ -117,7 +123,7 @@ public class Main {
         System.out.println("Local Search:");
         System.out.println("Min: " + list.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get());
         System.out.println("Avg: " + list.stream().mapToInt(LSResult::getCost).average().getAsDouble());
-        System.out.println("Max: " + list.stream().min((o1, o2) -> o1.getCost() + o2.getCost()).get());
+        System.out.println("Max: " + list.stream().mapToInt(LSResult::getCost).max().getAsInt());
         System.out.print("Min time [ms]: " + list.stream().mapToDouble(LSResult::getTime).min().getAsDouble());
         System.out.print(", Avg time [ms]: " + list.stream().mapToDouble(LSResult::getTime).average().getAsDouble());
         System.out.println(", Max time [ms]: " + list.stream().mapToDouble(LSResult::getTime).max().getAsDouble());
