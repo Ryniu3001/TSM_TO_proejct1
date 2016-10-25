@@ -19,8 +19,16 @@ public class Main {
 
     public static void main(String[] args) {
         List<Vertex> vertexList = Parser.readFile();
+
+        
+
+        // ------------------------------------------------
+
         //multipleLocalSearch(vertexList);
-        iteratedLocalSearch(vertexList);
+        //iteratedLocalSearch(vertexList);
+
+        // ------------------------------------------------
+
         //nn(vertexList);
         //nnGrasp(vertexList);
 
