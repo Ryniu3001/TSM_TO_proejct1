@@ -9,41 +9,59 @@ import fc.put.to.algorithms.local.MultipleLocalSearch;
 import fc.put.to.algorithms.nn.GraspNearestNeighbor;
 import fc.put.to.algorithms.nn.NearestNeighbor;
 import fc.put.to.algorithms.random.RandomSolution;
+import fc.put.to.algorithms.util.Checker;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Main {
 
     public static void main(String[] args) {
         List<Vertex> vertexList = Parser.readFile();
         //multipleLocalSearch(vertexList);
-        iteratedLocalSearch(vertexList);
+        //iteratedLocalSearch(vertexList);
         //nn(vertexList);
         //nnGrasp(vertexList);
 
         //greedyCycle(vertexList);
 
-//        random(vertexList);
-//
-//        nnLocal(vertexList);
-//        nnGraspLocal(vertexList);
-//
-//        randomLocal(vertexList);
+        //random(vertexList);
+
+        //nnLocal(vertexList);
+        //nnGraspLocal(vertexList);
+
+        //randomLocal(vertexList);
+
+        checkingSimilarity(vertexList);
     }
 
-    private static void multipleLocalSearch(List<Vertex> vertexList){
+    private static void checkingSimilarity(List<Vertex> vertexList) {
+        RandomSolution randomSolution = new RandomSolution(vertexList);
+        Random random = new Random();
+        List<LSResult> results = IntStream.range(0, 1000)
+                .sequential()
+                .mapToObj(i -> new LocalSearch(vertexList, randomSolution.findSolution(vertexList.get(random.nextInt(vertexList.size())))).run())
+                .collect(Collectors.toList());
+
+        Checker checker = new Checker(results, vertexList.size());
+        checker.compareAllSolutions();
+        System.out.println("-------------------");
+        checker.compareBestSolution();
+    }
+
+    private static void multipleLocalSearch(List<Vertex> vertexList) {
         MultipleLocalSearch mls = new MultipleLocalSearch();
         long start = System.currentTimeMillis();
         LSResult result = mls.run(vertexList);
         long stop = System.currentTimeMillis();
-        System.out.println("Time [s]: " + (stop-start) / 1e3);
+        System.out.println("Time [s]: " + (stop - start) / 1e3);
         System.out.println(result);
     }
 
-    private static void iteratedLocalSearch(List<Vertex> vertices){
+    private static void iteratedLocalSearch(List<Vertex> vertices) {
 
         IteratedLocalSearch ils = new IteratedLocalSearch(vertices);
         ils.run();
