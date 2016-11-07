@@ -12,29 +12,77 @@ import java.util.stream.IntStream;
  */
 public class Checker {
 
+    private final int vertexCount;
     private List<LSResult> lsResults;
 
-    public Checker(List<LSResult> lsResults) {
+    public Checker(List<LSResult> lsResults, int vertexCount) {
         this.lsResults = lsResults;
+        this.vertexCount = vertexCount;
     }
 
-    public void run() {
-        List<Double> result = IntStream.range(0, lsResults.size())
+    public void compareBestSolution() {
+        LSResult best = lsResults.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get();
+
+        List<Integer> vertices = lsResults.stream().map(result -> checkVertices(best.getCycle(), result.getCycle())).collect(Collectors.toList());
+        List<Integer> edges = lsResults.stream().map(result -> checkEdges(best.getCycle(), result.getCycle())).collect(Collectors.toList());
+
+        printResultsInt(vertices, edges);
+    }
+
+    private void printResultsInt(List<Integer> vertices, List<Integer> edges) {
+        System.out.println("wartosc");
+        lsResults.stream().forEach(x -> System.out.print(x.getCost() + ","));
+        System.out.println("vertices");
+        vertices.stream().forEach(x -> System.out.print(x + ","));
+        System.out.println("edges");
+        edges.stream().forEach(x -> System.out.print(x + ","));
+    }
+
+    public void compareAllSolutions() {
+        List<Double> vertices = IntStream.range(0, lsResults.size())
                 .sequential()
-                .mapToObj(i -> sth(this.lsResults.get(i), i))
+                .mapToObj(i -> compareVertices(this.lsResults.get(i)))
                 .collect(Collectors.toList());
 
-        LSResult best = lsResults.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get();
-        
+        List<Double> edges = IntStream.range(0, lsResults.size())
+                .sequential()
+                .mapToObj(i -> compareEdges(this.lsResults.get(i)))
+                .collect(Collectors.toList());
+
+        printResults(vertices, edges);
     }
 
-    private Double sth(LSResult result, int i) {
-        System.out.println("sth " + i);
-        return IntStream.range(i + 1, lsResults.size())
-                .sequential().map(v -> checkVertices(result.getCycle(), lsResults.get(v).getCycle()))
-                .average()
-                .getAsDouble();
+    private void printResults(List<Double> vertices, List<Double> edges) {
+        System.out.println("wartosc");
+        lsResults.stream().forEach(x -> System.out.print(x.getCost() + ","));
+        System.out.println("vertices");
+        vertices.stream().forEach(x -> System.out.print(x + ","));
+        System.out.println("edges");
+        edges.stream().forEach(x -> System.out.print(x + ","));
+    }
 
+    private double compareVertices(LSResult result) {
+        List<Integer> collect = IntStream.range(0, lsResults.size())
+                .sequential().mapToObj(v -> checkVertices(result.getCycle(), lsResults.get(v).getCycle()))
+                .collect(Collectors.toList());
+
+        return getAvarage(result, collect);
+    }
+
+    private double compareEdges(LSResult result) {
+        List<Integer> collect = IntStream.range(0, lsResults.size())
+                .sequential().mapToObj(v -> checkEdges(result.getCycle(), lsResults.get(v).getCycle()))
+                .collect(Collectors.toList());
+
+        return getAvarage(result, collect);
+    }
+
+    private double getAvarage(LSResult result, List<Integer> collect) {
+        int sum = collect.stream().mapToInt(a -> a).sum();
+        sum -= result.getCycle().size();
+
+        double avarage = (double) sum / lsResults.size();
+        return avarage;
     }
 
     private int checkVertices(List<Vertex> list1, List<Vertex> list2) {
@@ -53,8 +101,8 @@ public class Checker {
         boolean[][] matrix1 = createMatrix(list1);
         boolean[][] matrix2 = createMatrix(list2);
         for (int i = 0; i < matrix1.length; i++) {
-            for (int j = 0; j < matrix1[i].length; j++) {
-                if (matrix1[i][j] == matrix2[i][j]) {
+            for (int j = 0; j < matrix2[i].length; j++) {
+                if (matrix1[i][j] == true && matrix1[i][j] == matrix2[i][j]) {
                     result++;
                 }
             }
@@ -65,7 +113,7 @@ public class Checker {
 
     private boolean[][] createMatrix(List<Vertex> list) {
         final int size = list.size();
-        boolean[][] matrix = new boolean[size][size];
+        boolean[][] matrix = new boolean[vertexCount][vertexCount];
         for (int i = 0; i < size - 1; i++) {
             Vertex vertex = list.get(i);
             Vertex next = list.get(i + 1);
