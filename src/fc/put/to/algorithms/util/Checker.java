@@ -3,6 +3,7 @@ package fc.put.to.algorithms.util;
 import fc.put.to.Vertex;
 import fc.put.to.algorithms.local.LSResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,6 +21,23 @@ public class Checker {
         this.vertexCount = vertexCount;
     }
 
+    public List<List<Vertex>> getEqualsFragments(List<Vertex> vertices1, List<Vertex> vertices2) {
+        vertices1.forEach(x -> System.out.print(x.getId() + ", "));
+        vertices2.forEach(x -> System.out.print(x.getId() + ", "));
+
+        List<List<Vertex>> result = new ArrayList<>();
+        List<Integer> verticesIds = new ArrayList<>();
+
+        for (int i = 0; i < vertices1.size(); i++) {
+            Vertex vertex = vertices1.get(i);
+            if (vertices2.contains(vertex)) {
+                List<Vertex> equalsFragment = new ArrayList<>();
+            }
+        }
+
+        return result;
+    }
+
     public void compareBestSolution() {
         LSResult best = lsResults.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get();
 
@@ -31,11 +49,11 @@ public class Checker {
 
     private void printResultsInt(List<Integer> vertices, List<Integer> edges) {
         System.out.println("wartosc");
-        lsResults.stream().forEach(x -> System.out.print(x.getCost() + ","));
+        lsResults.forEach(x -> System.out.print(x.getCost() + ","));
         System.out.println("vertices");
-        vertices.stream().forEach(x -> System.out.print(x + ","));
+        vertices.forEach(x -> System.out.print(x + ","));
         System.out.println("edges");
-        edges.stream().forEach(x -> System.out.print(x + ","));
+        edges.forEach(x -> System.out.print(x + ","));
     }
 
     public void compareAllSolutions() {
@@ -54,11 +72,11 @@ public class Checker {
 
     private void printResults(List<Double> vertices, List<Double> edges) {
         System.out.println("wartosc");
-        lsResults.stream().forEach(x -> System.out.print(x.getCost() + ","));
+        lsResults.forEach(x -> System.out.print(x.getCost() + ","));
         System.out.println("vertices");
-        vertices.stream().forEach(x -> System.out.print(x + ","));
+        vertices.forEach(x -> System.out.print(x + ","));
         System.out.println("edges");
-        edges.stream().forEach(x -> System.out.print(x + ","));
+        edges.forEach(x -> System.out.print(x + ","));
     }
 
     private double compareVertices(LSResult result) {
@@ -81,8 +99,7 @@ public class Checker {
         int sum = collect.stream().mapToInt(a -> a).sum();
         sum -= result.getCycle().size();
 
-        double avarage = (double) sum / lsResults.size();
-        return avarage;
+        return (double) sum / lsResults.size();
     }
 
     private int checkVertices(List<Vertex> list1, List<Vertex> list2) {
@@ -102,7 +119,7 @@ public class Checker {
         boolean[][] matrix2 = createMatrix(list2);
         for (int i = 0; i < matrix1.length; i++) {
             for (int j = 0; j < matrix2[i].length; j++) {
-                if (matrix1[i][j] == true && matrix1[i][j] == matrix2[i][j]) {
+                if (matrix1[i][j] && matrix1[i][j] == matrix2[i][j]) {
                     result++;
                 }
             }
