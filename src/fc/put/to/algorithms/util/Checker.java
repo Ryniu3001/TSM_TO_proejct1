@@ -1,140 +1,130 @@
 package fc.put.to.algorithms.util;
 
 import fc.put.to.Vertex;
-import fc.put.to.algorithms.local.LSResult;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Set;
 
 /**
- * Created by inf109782 on 25.10.2016.
+ * Created by maciej on 09.11.16.
  */
 public class Checker {
 
-    private final int vertexCount;
-    private List<LSResult> lsResults;
+    private final List<Vertex> allVertices;
 
-    public Checker(List<LSResult> lsResults, int vertexCount) {
-        this.lsResults = lsResults;
-        this.vertexCount = vertexCount;
+    public Checker(List<Vertex> allVertices) {
+        this.allVertices = allVertices;
     }
 
     public List<List<Vertex>> getEqualsFragments(List<Vertex> vertices1, List<Vertex> vertices2) {
-        vertices1.forEach(x -> System.out.print(x.getId() + ", "));
-        vertices2.forEach(x -> System.out.print(x.getId() + ", "));
+        print(vertices1, vertices2);
+
+        boolean[][] matrix = getMatrix(vertices1, vertices2);
 
         List<List<Vertex>> result = new ArrayList<>();
-        List<Integer> verticesIds = new ArrayList<>();
+        Set<Integer> verticesIds = new HashSet<>();
+        for (int i = 0; i < matrix.length - 1; i++) {
+            int counter = 0;
+            List<Vertex> equalsFragment = new ArrayList<>();
+            for (int j = i + 1; j < matrix.length; j++) {
+                if (matrix[i][j] && verticesIds.contains(j) == false) {
+                    boolean addOnBegining = shouldAddOnBegining(counter);
+                    if (verticesIds.contains(i) == false) {
+                        add(verticesIds, i, equalsFragment, addOnBegining);
+                    }
 
-        for (int i = 0; i < vertices1.size(); i++) {
-            Vertex vertex = vertices1.get(i);
-            if (vertices2.contains(vertex)) {
-                List<Vertex> equalsFragment = new ArrayList<>();
+                    add(verticesIds, j, equalsFragment, addOnBegining);
+                    findAndAddNext(equalsFragment, addOnBegining, matrix, j, verticesIds);
+
+                    counter++;
+                }
+            }
+            if (equalsFragment.isEmpty() == false) {
+                result.add(equalsFragment);
             }
         }
+
 
         return result;
     }
 
-    public void compareBestSolution() {
-        LSResult best = lsResults.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get();
-
-        List<Integer> vertices = lsResults.stream().map(result -> checkVertices(best.getCycle(), result.getCycle())).collect(Collectors.toList());
-        List<Integer> edges = lsResults.stream().map(result -> checkEdges(best.getCycle(), result.getCycle())).collect(Collectors.toList());
-
-        printResultsInt(vertices, edges);
-    }
-
-    private void printResultsInt(List<Integer> vertices, List<Integer> edges) {
-        System.out.println("wartosc");
-        lsResults.forEach(x -> System.out.print(x.getCost() + ","));
-        System.out.println("vertices");
-        vertices.forEach(x -> System.out.print(x + ","));
-        System.out.println("edges");
-        edges.forEach(x -> System.out.print(x + ","));
-    }
-
-    public void compareAllSolutions() {
-        List<Double> vertices = IntStream.range(0, lsResults.size())
-                .sequential()
-                .mapToObj(i -> compareVertices(this.lsResults.get(i)))
-                .collect(Collectors.toList());
-
-        List<Double> edges = IntStream.range(0, lsResults.size())
-                .sequential()
-                .mapToObj(i -> compareEdges(this.lsResults.get(i)))
-                .collect(Collectors.toList());
-
-        printResults(vertices, edges);
-    }
-
-    private void printResults(List<Double> vertices, List<Double> edges) {
-        System.out.println("wartosc");
-        lsResults.forEach(x -> System.out.print(x.getCost() + ","));
-        System.out.println("vertices");
-        vertices.forEach(x -> System.out.print(x + ","));
-        System.out.println("edges");
-        edges.forEach(x -> System.out.print(x + ","));
-    }
-
-    private double compareVertices(LSResult result) {
-        List<Integer> collect = IntStream.range(0, lsResults.size())
-                .sequential().mapToObj(v -> checkVertices(result.getCycle(), lsResults.get(v).getCycle()))
-                .collect(Collectors.toList());
-
-        return getAvarage(result, collect);
-    }
-
-    private double compareEdges(LSResult result) {
-        List<Integer> collect = IntStream.range(0, lsResults.size())
-                .sequential().mapToObj(v -> checkEdges(result.getCycle(), lsResults.get(v).getCycle()))
-                .collect(Collectors.toList());
-
-        return getAvarage(result, collect);
-    }
-
-    private double getAvarage(LSResult result, List<Integer> collect) {
-        int sum = collect.stream().mapToInt(a -> a).sum();
-        sum -= result.getCycle().size();
-
-        return (double) sum / lsResults.size();
-    }
-
-    private int checkVertices(List<Vertex> list1, List<Vertex> list2) {
-        int result = 0;
-        for (Vertex vertex : list1) {
-            if (list2.contains(vertex)) {
-                result++;
+    private void findAndAddNext(List<Vertex> equalsFragment, boolean addOnBegining, boolean[][] matrix, int lastAdded, Set<Integer> verticesIds) {
+        for (int i = 0; i < 6; i++) {// TODO matrix[lastAdded].length; i++) {
+            if (matrix[lastAdded][i] && verticesIds.contains(i) == false) {
+                add(verticesIds, i, equalsFragment, addOnBegining);
+                findAndAddNext(equalsFragment, addOnBegining, matrix, i, verticesIds);
+                return;
             }
         }
-
-        return result;
     }
 
-    private int checkEdges(List<Vertex> list1, List<Vertex> list2) {
-        int result = 0;
-        boolean[][] matrix1 = createMatrix(list1);
-        boolean[][] matrix2 = createMatrix(list2);
-        for (int i = 0; i < matrix1.length; i++) {
-            for (int j = 0; j < matrix2[i].length; j++) {
+    private boolean[][] getMatrix(List<Vertex> vertices1, List<Vertex> vertices2) {
+        final int vertexCount = allVertices.size();
+        boolean[][] matrix = new boolean[vertexCount][vertexCount];
+        boolean[][] matrix1 = createMatrix(vertices1);
+        boolean[][] matrix2 = createMatrix(vertices2);
+        for (int i = 0; i < matrix1.length - 1; i++) {
+            for (int j = i + 1; j < matrix2.length; j++) {
                 if (matrix1[i][j] && matrix1[i][j] == matrix2[i][j]) {
-                    result++;
+                    matrix[i][j] = true;
+                    matrix[j][i] = true;
                 }
             }
         }
+        return matrix;
+    }
 
-        return result;
+    private void add(Set<Integer> verticesIds, int id, List<Vertex> equalsFragment, boolean addOnBegining) {
+        add(equalsFragment, allVertices.get(id), addOnBegining);
+        verticesIds.add(id);
+    }
+
+    private boolean shouldAddOnBegining(int counter) {
+        switch (counter) {
+            case 0:
+                return false;
+            case 1:
+                return true;
+            default:
+                throw new IllegalStateException("Whata fuck");
+        }
+    }
+
+    private void add(List<Vertex> list, Vertex vertex, boolean addOnBegining) {
+        if (addOnBegining) {
+            addFirst(list, vertex);
+        } else {
+            addLast(list, vertex);
+        }
+    }
+
+    private void addFirst(List<Vertex> list, Vertex vertex) {
+        list.add(0, vertex);
+    }
+
+    private void addLast(List<Vertex> list, Vertex vertex) {
+        list.add(vertex);
+    }
+
+    private void print(List<Vertex> vertices1, List<Vertex> vertices2) {
+        vertices1.forEach(x -> System.out.print(x.getId() + ", "));
+        System.out.println();
+        vertices2.forEach(x -> System.out.print(x.getId() + ", "));
+        System.out.println();
+        System.out.println();
     }
 
     private boolean[][] createMatrix(List<Vertex> list) {
+        final int vertexCount = allVertices.size();
         final int size = list.size();
         boolean[][] matrix = new boolean[vertexCount][vertexCount];
         for (int i = 0; i < size - 1; i++) {
             Vertex vertex = list.get(i);
             Vertex next = list.get(i + 1);
             matrix[vertex.getId()][next.getId()] = true;
+            matrix[next.getId()][vertex.getId()] = true; // we must create mirror view
         }
 
         return matrix;
