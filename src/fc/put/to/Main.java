@@ -10,6 +10,7 @@ import fc.put.to.algorithms.nn.GraspNearestNeighbor;
 import fc.put.to.algorithms.nn.NearestNeighbor;
 import fc.put.to.algorithms.random.RandomSolution;
 import fc.put.to.algorithms.util.Checker;
+import fc.put.to.algorithms.util.SimilarityChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,44 @@ public class Main {
 
         //randomLocal(vertexList);
 
-        checkingSimilarity(vertexList);
+        //checkingSimilarity(vertexList);
+        hybryde(vertexList);
+    }
+
+    private static void hybryde(List<Vertex> vertexList) {
+        Random random = new Random();
+        RandomSolution randomSolution = new RandomSolution(vertexList);
+        //List<Vertex> solution1 = randomSolution.findSolution(vertexList.get(random.nextInt(vertexList.size())));
+        //List<Vertex> solution2 = randomSolution.findSolution(vertexList.get(random.nextInt(vertexList.size())));
+
+        List<Vertex> solution1 = new ArrayList<Vertex>() {{
+            add(vertexList.get(0));
+            add(vertexList.get(1));
+            add(vertexList.get(2));
+            add(vertexList.get(3));
+            add(vertexList.get(4));
+            add(vertexList.get(5));
+            add(vertexList.get(0));
+        }};
+
+        List<Vertex> solution2 = new ArrayList<Vertex>() {{
+            add(vertexList.get(0));
+            add(vertexList.get(1));
+            add(vertexList.get(2));
+            add(vertexList.get(4));
+            add(vertexList.get(3));
+            add(vertexList.get(5));
+            add(vertexList.get(0));
+        }};
+
+
+        List<List<Vertex>> equalsFragments = new Checker(vertexList).getEqualsFragments(solution1, solution2);
+        for (int i = 0; i < equalsFragments.size(); i++) {
+            for (int j = 0; j < equalsFragments.get(i).size(); j++) {
+                System.out.print(equalsFragments.get(i).get(j).getId() + ", ");
+            }
+            System.out.println();
+        }
     }
 
     private static void checkingSimilarity(List<Vertex> vertexList) {
@@ -46,7 +84,7 @@ public class Main {
                 .mapToObj(i -> new LocalSearch(vertexList, randomSolution.findSolution(vertexList.get(random.nextInt(vertexList.size())))).run())
                 .collect(Collectors.toList());
 
-        Checker checker = new Checker(results, vertexList.size());
+        SimilarityChecker checker = new SimilarityChecker(results, vertexList.size());
         checker.compareAllSolutions();
         System.out.println("-------------------");
         checker.compareBestSolution();
