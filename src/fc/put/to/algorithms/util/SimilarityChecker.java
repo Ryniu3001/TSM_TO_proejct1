@@ -3,6 +3,7 @@ package fc.put.to.algorithms.util;
 import fc.put.to.Vertex;
 import fc.put.to.algorithms.local.LSResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -89,6 +90,17 @@ public class SimilarityChecker {
         for (Vertex vertex : list1) {
             if (list2.contains(vertex)) {
                 result++;
+            }
+        }
+
+        return result;
+    }
+
+    public static List<Vertex> getSimilarVertices(List<Vertex> list1, List<Vertex> list2) {
+        List<Vertex> result = new ArrayList<>();
+        for (Vertex vertex : list1) {
+            if (list2.contains(vertex)) {
+                result.add(vertex);
             }
         }
 

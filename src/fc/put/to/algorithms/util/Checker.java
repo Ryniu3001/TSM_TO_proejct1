@@ -51,7 +51,7 @@ public class Checker {
     }
 
     private void findAndAddNext(List<Vertex> equalsFragment, boolean addOnBegining, boolean[][] matrix, int lastAdded, Set<Integer> verticesIds) {
-        for (int i = 0; i < 6; i++) {// TODO matrix[lastAdded].length; i++) {
+        for (int i = 0; i < matrix[lastAdded].length; i++) {
             if (matrix[lastAdded][i] && verticesIds.contains(i) == false) {
                 add(verticesIds, i, equalsFragment, addOnBegining);
                 findAndAddNext(equalsFragment, addOnBegining, matrix, i, verticesIds);
