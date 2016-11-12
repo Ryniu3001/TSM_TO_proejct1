@@ -49,11 +49,8 @@ public class Main {
                 .map(v -> new LocalSearch(vertexList, graspNearestNeighbor.findSolution(vertexList.get(v))).run())
                 .collect(Collectors.toList());
 
-        long start = System.currentTimeMillis();
         EvolutionHybrid hybridEvol = new EvolutionHybrid(population, vertexList);
         hybridEvol.run();
-        long stop = System.currentTimeMillis();
-        System.out.println("Time [s]: " + (stop - start) / 1e3);
     }
 
     private static void hybryde(List<Vertex> vertexList) {

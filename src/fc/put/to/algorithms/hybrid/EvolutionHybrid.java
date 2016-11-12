@@ -7,6 +7,9 @@ import fc.put.to.algorithms.local.LSResult;
 import fc.put.to.algorithms.local.LocalSearch;
 import fc.put.to.algorithms.util.Checker;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -24,9 +27,16 @@ public class EvolutionHybrid {
     }
 
     public void run(){
-        int i = 0;
+        int loopCounter = 0;
+        Map<Integer, Long> iterToTimeMap = new HashMap<>();
+        Map<Integer, Integer> iterToCostMap = new HashMap<>();
         Random generator = new Random();
-        while (i++ < 1000) {
+        boolean stopLoop = false;
+        Integer minAt1100 = 0;
+        long start = System.currentTimeMillis();
+        while (!stopLoop) {
+            long innerStart = System.currentTimeMillis();
+            loopCounter ++;
             int solution1 = generator.nextInt(this.population.size());
             int solution2;
             do {
@@ -43,7 +53,20 @@ public class EvolutionHybrid {
                 this.population.remove(worstInPopulation.intValue());
                 this.population.add(result);
             }
+
+            if (loopCounter == 1100)
+                minAt1100 = this.population.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get().getCost();
+
+            long stop = System.currentTimeMillis();
+            iterToTimeMap.put(loopCounter, stop - innerStart);
+            iterToCostMap.put(loopCounter, result.getCost());
+            if (stop - start > 57000)
+                stopLoop = true;
         }
+        System.out.println("Min koszt po 1100 iteracjach: " + minAt1100);
+        System.out.println("Iteracji: " + loopCounter);
+        saveToFile("iterToCost", iterToCostMap);
+        saveToFile("iterToTime", iterToTimeMap);
         Main.printLCResult(this.population);
     }
 
@@ -90,5 +113,17 @@ public class EvolutionHybrid {
             }
         }
         return equalsFragments;
+    }
+
+    private void saveToFile(String filename, Map o) {
+        List<String> mapInList = new ArrayList<>();
+        for (int i = 1; i <= o.size(); i++){
+            mapInList.add(i + " " + o.get(i));
+        }
+        try {
+            Files.write(Paths.get(filename), mapInList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
