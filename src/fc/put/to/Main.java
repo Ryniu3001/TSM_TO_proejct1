@@ -2,6 +2,7 @@ package fc.put.to;
 
 import fc.put.to.algorithms.greedy.GraspGreedyCycle;
 import fc.put.to.algorithms.greedy.GreedyCycle;
+import fc.put.to.algorithms.hybrid.EvolutionHybrid;
 import fc.put.to.algorithms.local.IteratedLocalSearch;
 import fc.put.to.algorithms.local.LSResult;
 import fc.put.to.algorithms.local.LocalSearch;
@@ -12,9 +13,7 @@ import fc.put.to.algorithms.random.RandomSolution;
 import fc.put.to.algorithms.util.Checker;
 import fc.put.to.algorithms.util.SimilarityChecker;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -37,7 +36,24 @@ public class Main {
         //randomLocal(vertexList);
 
         //checkingSimilarity(vertexList);
-        hybryde(vertexList);
+        hybridEvol(vertexList);
+    }
+
+    private static void hybridEvol(List<Vertex> vertexList){
+        GraspNearestNeighbor graspNearestNeighbor = new GraspNearestNeighbor(vertexList);
+        Random generator = new Random();
+        Set<Integer> randoms = new HashSet<>();
+        while (randoms.size() != 20)
+            randoms.add(generator.nextInt(100));
+        List<LSResult> population = randoms.stream()
+                .map(v -> new LocalSearch(vertexList, graspNearestNeighbor.findSolution(vertexList.get(v))).run())
+                .collect(Collectors.toList());
+
+        long start = System.currentTimeMillis();
+        EvolutionHybrid hybridEvol = new EvolutionHybrid(population, vertexList);
+        hybridEvol.run();
+        long stop = System.currentTimeMillis();
+        System.out.println("Time [s]: " + (stop - start) / 1e3);
     }
 
     private static void hybryde(List<Vertex> vertexList) {
@@ -169,7 +185,7 @@ public class Main {
         printLCResult(result);
     }
 
-    private static void printLCResult(List<LSResult> list) {
+    public static void printLCResult(List<LSResult> list) {
         System.out.println("Local Search:");
         System.out.println("Min: " + list.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get());
         System.out.println("Avg: " + list.stream().mapToInt(LSResult::getCost).average().getAsDouble());

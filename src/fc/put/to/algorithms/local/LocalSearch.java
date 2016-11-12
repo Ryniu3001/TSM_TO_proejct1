@@ -128,11 +128,11 @@ public class LocalSearch {
     }
 
     protected Integer calculateCost(List<Vertex> list){
-        final Integer[] cost = {0};
-        IntStream.range(1, list.size()).forEach(i -> {
-            cost[0] += list.get(i-1).getCostToVertex(list.get(i)).getValue();
-        });
-        return cost[0];
+        Integer cost = IntStream.range(1, list.size())
+                .sequential()
+                .mapToObj(val -> list.get(val-1).getCostToVertex(list.get(val)).getValue())
+                .reduce(0, (cost1, cost2) -> cost1 + cost2);
+        return cost;
     }
 
     protected class VertexReplacement {

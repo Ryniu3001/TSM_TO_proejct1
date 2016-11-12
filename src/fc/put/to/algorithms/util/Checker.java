@@ -19,7 +19,7 @@ public class Checker {
     }
 
     public List<List<Vertex>> getEqualsFragments(List<Vertex> vertices1, List<Vertex> vertices2) {
-        print(vertices1, vertices2);
+//        print(vertices1, vertices2);
 
         boolean[][] matrix = getMatrix(vertices1, vertices2);
 
