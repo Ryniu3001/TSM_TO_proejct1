@@ -1,10 +1,10 @@
 package fc.put.to.algorithms.hybrid;
 
 import fc.put.to.Constants;
-import fc.put.to.Main;
 import fc.put.to.Vertex;
 import fc.put.to.algorithms.local.LSResult;
 import fc.put.to.algorithms.local.LocalSearch;
+import fc.put.to.algorithms.nn.GraspNearestNeighbor;
 import fc.put.to.algorithms.util.Checker;
 
 import java.io.IOException;
@@ -26,16 +26,30 @@ public class EvolutionHybrid {
         this.vertexList = vertexList;
     }
 
-    public void run(){
+    public EvolutionHybrid(List<Vertex> vertexList){
+        this.vertexList = vertexList;
+    }
+
+    public static List<LSResult> generateFirstPopulation(List<Vertex> vertexList){
+        GraspNearestNeighbor graspNearestNeighbor = new GraspNearestNeighbor(vertexList);
+        Random generator = new Random();
+        Set<Integer> randoms = new HashSet<>();
+        while (randoms.size() != 20)
+            randoms.add(generator.nextInt(100));
+        List<LSResult> population = randoms.stream()
+                .map(v -> new LocalSearch(vertexList, graspNearestNeighbor.findSolution(vertexList.get(v))).run())
+                .collect(Collectors.toList());
+        return population;
+    }
+    public EHResult run(){
+        this.population = EvolutionHybrid.generateFirstPopulation(vertexList);
         int loopCounter = 0;
         Map<Integer, Long> iterToTimeMap = new HashMap<>();
         Map<Integer, Integer> iterToCostMap = new HashMap<>();
         Random generator = new Random();
         boolean stopLoop = false;
-        Integer minAt1100 = 0;
         long start = System.currentTimeMillis();
         while (!stopLoop) {
-            long innerStart = System.currentTimeMillis();
             loopCounter ++;
             int solution1 = generator.nextInt(this.population.size());
             int solution2;
@@ -53,21 +67,17 @@ public class EvolutionHybrid {
                 this.population.remove(worstInPopulation.intValue());
                 this.population.add(result);
             }
-
-            if (loopCounter == 1100)
-                minAt1100 = this.population.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get().getCost();
-
             long stop = System.currentTimeMillis();
-            iterToTimeMap.put(loopCounter, stop - innerStart);
+            iterToTimeMap.put(loopCounter, Math.round(result.getTime()));
             iterToCostMap.put(loopCounter, result.getCost());
-            if (stop - start > 57000)
+            if (stop - start > 60000)
                 stopLoop = true;
         }
-        System.out.println("Min koszt po 1100 iteracjach: " + minAt1100);
         System.out.println("Iteracji: " + loopCounter);
-        saveToFile("iterToCost", iterToCostMap);
-        saveToFile("iterToTime", iterToTimeMap);
-        Main.printLCResult(this.population);
+        LSResult bestFromPopulation = this.population.stream().min((o1, o2) -> o1.getCost() - o2.getCost()).get();
+        EHResult bestResult = new EHResult(iterToTimeMap, iterToCostMap, bestFromPopulation);
+        System.out.println("Result: " + bestFromPopulation.getCost());
+        return bestResult;
     }
 
     private LSResult recombination(List<Vertex> cycle1, List<Vertex> cycle2){
@@ -84,8 +94,8 @@ public class EvolutionHybrid {
         while (equalsFragments.size() > 0){
             int elementId = generator.nextInt(equalsFragments.size());
             List<Vertex> fragment = equalsFragments.get(elementId);
-            if (fragment.size() > 1 && generator.nextBoolean())
-                Collections.reverse(fragment);
+/*            if (fragment.size() > 1 && generator.nextBoolean())
+                Collections.reverse(fragment);*/
             newCycle.addAll(fragment);
             equalsFragments.remove(elementId);
         }
@@ -115,7 +125,7 @@ public class EvolutionHybrid {
         return equalsFragments;
     }
 
-    private void saveToFile(String filename, Map o) {
+    public void saveToFile(String filename, Map o) {
         List<String> mapInList = new ArrayList<>();
         for (int i = 1; i <= o.size(); i++){
             mapInList.add(i + " " + o.get(i));

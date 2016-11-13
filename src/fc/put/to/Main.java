@@ -2,6 +2,7 @@ package fc.put.to;
 
 import fc.put.to.algorithms.greedy.GraspGreedyCycle;
 import fc.put.to.algorithms.greedy.GreedyCycle;
+import fc.put.to.algorithms.hybrid.EHResult;
 import fc.put.to.algorithms.hybrid.EvolutionHybrid;
 import fc.put.to.algorithms.local.IteratedLocalSearch;
 import fc.put.to.algorithms.local.LSResult;
@@ -13,7 +14,9 @@ import fc.put.to.algorithms.random.RandomSolution;
 import fc.put.to.algorithms.util.Checker;
 import fc.put.to.algorithms.util.SimilarityChecker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,17 +43,20 @@ public class Main {
     }
 
     private static void hybridEvol(List<Vertex> vertexList){
-        GraspNearestNeighbor graspNearestNeighbor = new GraspNearestNeighbor(vertexList);
-        Random generator = new Random();
-        Set<Integer> randoms = new HashSet<>();
-        while (randoms.size() != 20)
-            randoms.add(generator.nextInt(100));
-        List<LSResult> population = randoms.stream()
-                .map(v -> new LocalSearch(vertexList, graspNearestNeighbor.findSolution(vertexList.get(v))).run())
-                .collect(Collectors.toList());
+        EvolutionHybrid hybridEvol = new EvolutionHybrid(vertexList);
+        List<EHResult> results = IntStream.range(0, 10).sequential().mapToObj(i -> hybridEvol.run()).collect(Collectors.toList());
 
-        EvolutionHybrid hybridEvol = new EvolutionHybrid(population, vertexList);
-        hybridEvol.run();
+        EHResult best = results.stream().min((o1, o2) -> o1.getLsResult().getCost() - o2.getLsResult().getCost()).get();
+        hybridEvol.saveToFile("iterToCost", best.getIterToCostMap());
+        hybridEvol.saveToFile("iterToTime", best.getIterToTimeMap());
+        System.out.println("Min: " + best.getLsResult());
+        System.out.println("Avg: " + results.stream()
+                                            .mapToInt(v -> v.getLsResult().getCost()).average()
+                                            .getAsDouble());
+        System.out.println("Max: " + results.stream()
+                                            .max((o1, o2) -> o1.getLsResult().getCost() - o2.getLsResult().getCost())
+                                            .get()
+                                            .getLsResult());
     }
 
     private static void hybryde(List<Vertex> vertexList) {
