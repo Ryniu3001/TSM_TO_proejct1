@@ -94,8 +94,8 @@ public class EvolutionHybrid {
         while (equalsFragments.size() > 0){
             int elementId = generator.nextInt(equalsFragments.size());
             List<Vertex> fragment = equalsFragments.get(elementId);
-/*            if (fragment.size() > 1 && generator.nextBoolean())
-                Collections.reverse(fragment);*/
+            if (fragment.size() > 1 && generator.nextBoolean())
+                Collections.reverse(fragment);
             newCycle.addAll(fragment);
             equalsFragments.remove(elementId);
         }

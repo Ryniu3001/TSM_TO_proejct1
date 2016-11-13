@@ -46,7 +46,14 @@ public class Main {
         EvolutionHybrid hybridEvol = new EvolutionHybrid(vertexList);
         List<EHResult> results = IntStream.range(0, 10).sequential().mapToObj(i -> hybridEvol.run()).collect(Collectors.toList());
 
-        EHResult best = results.stream().min((o1, o2) -> o1.getLsResult().getCost() - o2.getLsResult().getCost()).get();
+        EHResult best = results.stream()
+                                .min((o1, o2) -> o1.getLsResult().getCost() - o2.getLsResult().getCost())
+                                .get();
+        int bestCost = best.getLsResult().getCost();
+        best = results.stream()
+                        .filter(ehr -> ehr.getLsResult().getCost().intValue() == bestCost)
+                        .min((o1, o2) -> o1.getIterToCostMap().size() - o2.getIterToCostMap().size())
+                        .get();
         hybridEvol.saveToFile("iterToCost", best.getIterToCostMap());
         hybridEvol.saveToFile("iterToTime", best.getIterToTimeMap());
         System.out.println("Min: " + best.getLsResult());
